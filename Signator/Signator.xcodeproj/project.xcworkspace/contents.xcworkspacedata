@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "self:">
+   </FileRef>
+   <FileRef
+      location = "group:PersonaResolver.swift">
+   </FileRef>
+   <FileRef
+      location = "group:SharedContainer.swift">
+   </FileRef>
+   <FileRef
+      location = "group:MentionChip.swift">
+   </FileRef>
+</Workspace>

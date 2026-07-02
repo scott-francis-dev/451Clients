@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- 
+    Foundation Models Framework Configuration
+    Add these keys to your app's Info.plist to enable Apple Intelligence features
+    -->
+    
+    <!-- Optional: Add a usage description for Apple Intelligence features -->
+    <key>NSAppleIntelligenceUsageDescription</key>
+    <string>Words Matter uses Apple Intelligence to help improve your writing with suggestions, summaries, and smart tag generation.</string>
+    
+    <!-- Note: Foundation Models framework is available on:
+         - iOS 18.2+ (iPhone 15 Pro and later)
+         - iPadOS 18.2+ (iPad Pro with M1 or later, iPad Air with M1 or later)
+         - macOS 15.2+ (Mac with Apple silicon)
+    -->
+</dict>
+</plist>

@@ -1,0 +1,11 @@
+.DS_Store
+/.build
+/build
+*.o
+*.d
+*.swp
+*.lock
+xcuserdata/
+*.xcworkspace/xcuserdata/
+.swiftpm/config/registries.json
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata

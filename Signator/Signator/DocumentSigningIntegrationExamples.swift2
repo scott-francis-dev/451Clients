@@ -1,0 +1,562 @@
+import SwiftUI
+import CryptoKit
+
+// MARK: - Integration Examples for Existing Views
+
+/// Example: How to update SendSigningFlowView.swift to use the new workflow
+/// This shows the minimal changes needed to existing code
+
+extension ReviewSheet {
+    
+    /// NEW: Enhanced submission that supports multi-party signing
+    /// Call this instead of the old performSubmitSignedDocumentFlow
+    private func performMultiPartySubmission() async {
+        guard let url = documentURL, let persona = personaManager.activePersona() else {
+            await MainActor.run {
+                submitError = "Missing document or persona"
+            }
+            return
+        }
+        
+        await MainActor.run {
+            submitInFlight = true
+            submitError = nil
+        }
+        defer {
+            Task { @MainActor in
+                submitInFlight = false
+            }
+        }
+        
+        do {
+            // Load document data (with XMP if needed)
+            let dataForSubmission: Data
+            if let xmpData = embedXMPInDocument(url: url, personaDid: persona.id) {
+                dataForSubmission = xmpData
+            } else {
+                dataForSubmission = try Data(contentsOf: url)
+            }
+            
+            // Load author's private key
+            guard let privateKey = try? PrivateKeyStore.loadPrivateKey(for: persona.id) else {
+                throw NSError(domain: "MultiPartySubmission", code: -1,
+                             userInfo: [NSLocalizedDescriptionKey: "Failed to load private key for \(persona.id)"])
+            }
+            
+            // Prepare additional signers from participants
+            var additionalSigners: [(did: String, publicKey: String, privateKey: P256.Signing.PrivateKey, role: DocumentSigningService.SignerRole)] = []
+            
+            for participantDID in metadata.participants {
+                // In a real app, you would either:
+                // 1. Send them a signing request and wait for their signature
+                // 2. Collect their signatures asynchronously
+                // 3. Only upload the document and let them sign later
+                //
+                // For now, we'll just upload and let them sign later
+            }
+            
+            // Use the new workflow
+            if additionalSigners.isEmpty {
+                // Simple case: Just author signing initially
+                // Others can sign later via separate flow
+                
+                let (docId, _) = try await DocumentSigningService.completeSigningWorkflow(
+                    documentData: dataForSubmission,
+                    authorDID: persona.id,
+                    authorPrivateKey: privateKey,
+                    authorPublicKey: persona.publicKeyBase64,
+                    originalFilename: url.lastPathComponent,
+                    additionalSigners: []
+                )
+                
+                // Store the document ID for later signature collection
+                await MainActor.run {
+                    generatedDocumentUUID = docId
+                }
+                
+                // Note: Document is not finalized yet - waiting for other signers
+                // You can now send signing invitations to participants
+                
+            } else {
+                // All signers are ready - complete full workflow
+                let (docId, attestID) = try await DocumentSigningService.completeSigningWorkflow(
+                    documentData: dataForSubmission,
+                    authorDID: persona.id,
+                    authorPrivateKey: privateKey,
+                    authorPublicKey: persona.publicKeyBase64,
+                    originalFilename: url.lastPathComponent,
+                    additionalSigners: additionalSigners
+                )
+                
+                await MainActor.run {
+                    generatedDocumentUUID = docId
+                }
+                
+                print("✅ Document fully signed and finalized")
+                print("   Document ID: \(docId)")
+                print("   Attest Entry: \(attestID)")
+            }
+            
+            // Continue with local persistence as before...
+            await persistLocalCopy(url: url, docId: generatedDocumentUUID)
+            
+        } catch {
+            await MainActor.run {
+                submitError = error.localizedDescription
+            }
+        }
+    }
+    
+    private func persistLocalCopy(url: URL, docId: String) async {
+        // Existing local persistence logic remains unchanged
+        let version = ISO8601DateFormatter().string(from: Date())
+        let contentType = url.pathExtension.lowercased() == "pdf" ? "application/pdf" : "application/octet-stream"
+        
+        do {
+            let (absoluteURL, relativePath) = try InitiatedSigningStore.shared.copyDocumentToStore(
+                sourceURL: url,
+                documentUUID: docId,
+                version: version,
+                contentType: contentType
+            )
+            
+            var metaDict: [String: String] = [:]
+            metaDict["type"] = metadata.type
+            metaDict["access"] = metadata.access
+            metaDict["title"] = metadata.title
+            metaDict["identifier"] = docId
+            // ... add other metadata
+            
+            let attrs = try FileManager.default.attributesOfItem(atPath: absoluteURL.path)
+            let fileSize = (attrs[.size] as? NSNumber)?.int64Value ?? 0
+            
+            let record = InitiatedSigningRecord(
+                id: UUID().uuidString,
+                documentUUID: docId,
+                version: version,
+                title: metadata.title.isEmpty ? url.lastPathComponent : metadata.title,
+                originalFilename: url.lastPathComponent,
+                savedFilePath: relativePath,
+                fileSize: fileSize,
+                contentType: contentType,
+                createdAt: version,
+                metadata: metaDict,
+                participants: metadata.participants,
+                authors: metadata.authors
+            )
+            
+            InitiatedSigningStore.shared.append(record)
+            
+            let doc = Document(
+                title: record.title,
+                subtitle: metadata.subtitle,
+                isSigned: metadata.participants.isEmpty  // Only signed if no pending participants
+            )
+            
+            await MainActor.run {
+                initiatedRequests.append(doc)
+                isPresented = false
+            }
+        } catch {
+            await MainActor.run {
+                submitError = "Saved to server, but failed to persist local copy: \(error.localizedDescription)"
+            }
+        }
+    }
+}
+
+// MARK: - Signature Request Flow
+
+/// View for handling incoming signature requests
+/// When a document needs your signature, use this flow
+struct SignatureRequestView: View {
+    let documentId: String
+    let requestingDID: String
+    let role: DocumentSigningService.SignerRole
+    
+    @State private var documentData: Data?
+    @State private var isLoading = false
+    @State private var isSigning = false
+    @State private var errorMessage: String?
+    @State private var signatureComplete = false
+    @State private var signatureEntryID: String?
+    
+    @ObservedObject private var personaManager = PersonaManager()
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Signature Request")
+                .font(.title)
+                .bold()
+            
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("Document ID:")
+                        .foregroundColor(.secondary)
+                    Text(documentId)
+                        .font(.caption)
+                        .lineLimit(1)
+                }
+                
+                HStack {
+                    Text("Requested by:")
+                        .foregroundColor(.secondary)
+                    Text(requestingDID)
+                        .font(.caption)
+                }
+                
+                HStack {
+                    Text("Your role:")
+                        .foregroundColor(.secondary)
+                    Text(role.rawValue.capitalized)
+                        .padding(6)
+                        .background(Color.blue.opacity(0.2))
+                        .cornerRadius(6)
+                }
+            }
+            .padding()
+            .background(Color.gray.opacity(0.1))
+            .cornerRadius(12)
+            
+            if let persona = personaManager.activePersona() {
+                Text("Signing as: \(persona.name)")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            
+            if signatureComplete {
+                VStack(spacing: 8) {
+                    Image(systemName: "checkmark.seal.fill")
+                        .resizable()
+                        .frame(width: 60, height: 60)
+                        .foregroundColor(.green)
+                    
+                    Text("Signature Added")
+                        .font(.headline)
+                    
+                    if let entryID = signatureEntryID {
+                        Text("Entry ID: \(entryID)")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding()
+            } else {
+                Button(action: { Task { await signDocument() } }) {
+                    if isSigning {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                    } else {
+                        Text("Sign Document")
+                            .font(.headline)
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(isSigning || personaManager.activePersona() == nil)
+            }
+            
+            if let error = errorMessage {
+                Text(error)
+                    .foregroundColor(.red)
+                    .font(.caption)
+                    .multilineTextAlignment(.center)
+                    .padding()
+            }
+        }
+        .padding()
+        .task {
+            await loadDocumentForReview()
+        }
+    }
+    
+    private func loadDocumentForReview() async {
+        // In a real app, fetch the document from server for review
+        isLoading = true
+        defer { isLoading = false }
+        
+        // Placeholder: Load document data
+        // let data = try? await fetchDocument(documentId: documentId)
+        // await MainActor.run {
+        //     self.documentData = data
+        // }
+    }
+    
+    private func signDocument() async {
+        guard let persona = personaManager.activePersona() else {
+            await MainActor.run {
+                errorMessage = "No active persona"
+            }
+            return
+        }
+        
+        await MainActor.run {
+            isSigning = true
+            errorMessage = nil
+        }
+        defer {
+            Task { @MainActor in
+                isSigning = false
+            }
+        }
+        
+        do {
+            // Load private key
+            guard let privateKey = try? PrivateKeyStore.loadPrivateKey(for: persona.id) else {
+                throw NSError(domain: "SignatureRequest", code: -1,
+                             userInfo: [NSLocalizedDescriptionKey: "Failed to load private key"])
+            }
+            
+            // In a real app, you'd download the document to sign
+            // For now, we'll create dummy data
+            let documentToSign = "Sample document content".data(using: .utf8)!
+            let documentHash = Data(SHA256.hash(data: documentToSign))
+            
+            // Get the latest signature status to find previousEntryID
+            let status = try await DocumentSigningService.getSignatureStatus(documentId: documentId)
+            let previousEntryID = status.signers.last?.ledgerEntryID
+            
+            // Add signature
+            let response = try await DocumentSigningService.addSignature(
+                documentId: documentId,
+                signerDID: persona.id,
+                signerPublicKey: persona.publicKeyBase64,
+                documentHash: documentHash,
+                privateKey: privateKey,
+                role: role,
+                previousEntryID: previousEntryID
+            )
+            
+            await MainActor.run {
+                self.signatureComplete = true
+                self.signatureEntryID = response.ledgerEntryID
+            }
+            
+        } catch {
+            await MainActor.run {
+                errorMessage = "Signing failed: \(error.localizedDescription)"
+            }
+        }
+    }
+}
+
+// MARK: - Document Status View
+
+/// View for checking document signing status
+/// Shows who has signed and who is pending
+struct DocumentSigningStatusView: View {
+    let documentId: String
+    
+    @State private var status: DocumentSigningService.SignatureStatus?
+    @State private var auditTrail: DocumentSigningService.AuditTrail?
+    @State private var isLoading = false
+    @State private var errorMessage: String?
+    @State private var showAuditTrail = false
+    
+    var body: some View {
+        NavigationView {
+            List {
+                if let status = status {
+                    Section(header: Text("Summary")) {
+                        HStack {
+                            Text("Total Signatures")
+                            Spacer()
+                            Text("\(status.totalSignatures)")
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        HStack {
+                            Text("Document ID")
+                            Spacer()
+                            Text(status.documentId)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .lineLimit(1)
+                        }
+                    }
+                    
+                    Section(header: Text("Signatures by Role")) {
+                        ForEach(Array(status.signaturesByRole.keys.sorted()), id: \.self) { role in
+                            HStack {
+                                Text(role.capitalized)
+                                Spacer()
+                                Text("\(status.signaturesByRole[role] ?? 0)")
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    
+                    Section(header: Text("Signers")) {
+                        ForEach(status.signers, id: \.ledgerEntryID) { signer in
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(.green)
+                                    Text(signer.did)
+                                        .font(.subheadline)
+                                }
+                                
+                                HStack {
+                                    Text(signer.role.capitalized)
+                                        .font(.caption)
+                                        .padding(4)
+                                        .background(Color.blue.opacity(0.2))
+                                        .cornerRadius(4)
+                                    
+                                    Text(signer.timestamp)
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
+                    
+                    Section {
+                        Button("View Complete Audit Trail") {
+                            Task { await loadAuditTrail() }
+                        }
+                    }
+                    
+                } else if isLoading {
+                    Section {
+                        HStack {
+                            Spacer()
+                            ProgressView()
+                            Spacer()
+                        }
+                    }
+                } else if let error = errorMessage {
+                    Section {
+                        Text(error)
+                            .foregroundColor(.red)
+                    }
+                }
+            }
+            .navigationTitle("Signing Status")
+            .task {
+                await loadStatus()
+            }
+            .refreshable {
+                await loadStatus()
+            }
+            .sheet(isPresented: $showAuditTrail) {
+                auditTrailView
+            }
+        }
+    }
+    
+    private var auditTrailView: some View {
+        NavigationView {
+            List {
+                if let audit = auditTrail {
+                    ForEach(audit.entries, id: \.id) { entry in
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                entryIcon(entry.type)
+                                Text(entry.type)
+                                    .font(.headline)
+                                Spacer()
+                                Text(entry.timestamp)
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Text("Issuer: \(entry.issuer)")
+                                .font(.caption)
+                            
+                            if let role = entry.role {
+                                Text("Role: \(role)")
+                                    .font(.caption)
+                                    .padding(4)
+                                    .background(Color.blue.opacity(0.2))
+                                    .cornerRadius(4)
+                            }
+                            
+                            if let prevID = entry.previousEntryID {
+                                Text("← Chains to: \(prevID)")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+            }
+            .navigationTitle("Audit Trail")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") { showAuditTrail = false }
+                }
+            }
+        }
+    }
+    
+    private func entryIcon(_ type: String) -> some View {
+        Group {
+            switch type {
+            case "PROOF":
+                Image(systemName: "doc.badge.gearshape")
+                    .foregroundColor(.purple)
+            case "SIGN":
+                Image(systemName: "signature")
+                    .foregroundColor(.blue)
+            case "ATTEST":
+                Image(systemName: "checkmark.seal.fill")
+                    .foregroundColor(.green)
+            default:
+                Image(systemName: "questionmark.circle")
+                    .foregroundColor(.gray)
+            }
+        }
+    }
+    
+    private func loadStatus() async {
+        isLoading = true
+        defer { isLoading = false }
+        
+        do {
+            let fetchedStatus = try await DocumentSigningService.getSignatureStatus(
+                documentId: documentId
+            )
+            
+            await MainActor.run {
+                self.status = fetchedStatus
+            }
+        } catch {
+            await MainActor.run {
+                self.errorMessage = error.localizedDescription
+            }
+        }
+    }
+    
+    private func loadAuditTrail() async {
+        do {
+            let fetchedAudit = try await DocumentSigningService.getAuditTrail(
+                documentId: documentId
+            )
+            
+            await MainActor.run {
+                self.auditTrail = fetchedAudit
+                self.showAuditTrail = true
+            }
+        } catch {
+            await MainActor.run {
+                self.errorMessage = "Failed to load audit trail: \(error.localizedDescription)"
+            }
+        }
+    }
+}
+
+// MARK: - Preview
+
+#Preview("Signature Request") {
+    SignatureRequestView(
+        documentId: "doc-sample-123",
+        requestingDID: "did:persona:alice@company",
+        role: .participant
+    )
+}
+
+#Preview("Document Status") {
+    DocumentSigningStatusView(documentId: "doc-sample-123")
+}

@@ -1,0 +1,479 @@
+
+import Foundation
+import CryptoKit
+
+@testable import YourAppModule  // Replace with your actual module name
+
+/// Tests for the new multi-party document signing workflow
+@Suite("Document Signing Service Tests")
+struct DocumentSigningServiceTests {
+    
+    // MARK: - Upload Tests
+    
+    @Test("Upload document creates PROOF entry")
+    func uploadDocumentCreatesPROOFEntry() async throws {
+        let documentData = "Test contract content".data(using: .utf8)!
+        let authorDID = "did:persona:test@example"
+        
+        let response = try await DocumentSigningService.uploadDocument(
+            documentData: documentData,
+            authorDID: authorDID,
+            originalFilename: "test-contract.txt"
+        )
+        
+        #expect(!response.documentId.isEmpty, "Document ID should not be empty")
+        #expect(!response.ledgerProofEntryID.isEmpty, "Proof entry ID should not be empty")
+        #expect(!response.documentHash.isEmpty, "Document hash should not be empty")
+        #expect(response.documentId.hasPrefix("doc-"), "Document ID should start with 'doc-'")
+    }
+    
+    @Test("Upload requires valid author DID")
+    func uploadRequiresValidAuthorDID() async throws {
+        let documentData = "Test content".data(using: .utf8)!
+        
+        // Should fail with empty DID
+        await #expect(throws: DocumentSigningError.self) {
+            try await DocumentSigningService.uploadDocument(
+                documentData: documentData,
+                authorDID: "",  // ❌ Empty DID
+                originalFilename: "test.txt"
+            )
+        }
+        
+        // Should fail with "unknown" DID
+        await #expect(throws: DocumentSigningError.self) {
+            try await DocumentSigningService.uploadDocument(
+                documentData: documentData,
+                authorDID: "unknown",  // ❌ Not a real DID
+                originalFilename: "test.txt"
+            )
+        }
+    }
+    
+    // MARK: - Signature Tests
+    
+    @Test("Add signature with valid role creates SIGN entry")
+    func addSignatureCreatesSignEntry() async throws {
+        // Setup: Upload document first
+        let documentData = "Contract content".data(using: .utf8)!
+        let authorDID = "did:persona:author@company"
+        
+        let uploadResponse = try await DocumentSigningService.uploadDocument(
+            documentData: documentData,
+            authorDID: authorDID,
+            originalFilename: "contract.txt"
+        )
+        
+        // Generate keys
+        let privateKey = P256.Signing.PrivateKey()
+        let publicKey = privateKey.publicKey.rawRepresentation.base64EncodedString()
+        let documentHash = Data(SHA256.hash(data: documentData))
+        
+        // Add signature
+        let signResponse = try await DocumentSigningService.addSignature(
+            documentId: uploadResponse.documentId,
+            signerDID: authorDID,
+            signerPublicKey: publicKey,
+            documentHash: documentHash,
+            privateKey: privateKey,
+            role: .author,
+            previousEntryID: uploadResponse.ledgerProofEntryID
+        )
+        
+        #expect(!signResponse.ledgerEntryID.isEmpty, "Sign entry ID should not be empty")
+        #expect(signResponse.signerDID == authorDID, "Signer DID should match")
+        #expect(signResponse.role == "author", "Role should be 'author'")
+    }
+    
+    @Test("Add signature requires valid role")
+    func addSignatureRequiresValidRole() async throws {
+        // All roles should be valid
+        let validRoles: [DocumentSigningService.SignerRole] = [
+            .author,
+            .participant,
+            .witness,
+            .notary,
+            .reviewer
+        ]
+        
+        for role in validRoles {
+            #expect(role.rawValue.isEmpty == false, "Role \(role) should have a value")
+        }
+    }
+    
+    @Test("Chaining signatures with previousEntryID")
+    func chainingSignaturesWithPreviousEntryID() async throws {
+        let documentData = "Multi-party contract".data(using: .utf8)!
+        let documentHash = Data(SHA256.hash(data: documentData))
+        
+        // Upload
+        let uploadResponse = try await DocumentSigningService.uploadDocument(
+            documentData: documentData,
+            authorDID: "did:persona:author@company",
+            originalFilename: "contract.txt"
+        )
+        
+        // First signature (chains to PROOF)
+        let key1 = P256.Signing.PrivateKey()
+        let sig1 = try await DocumentSigningService.addSignature(
+            documentId: uploadResponse.documentId,
+            signerDID: "did:persona:signer1@company",
+            signerPublicKey: key1.publicKey.rawRepresentation.base64EncodedString(),
+            documentHash: documentHash,
+            privateKey: key1,
+            role: .author,
+            previousEntryID: uploadResponse.ledgerProofEntryID  // Chain to PROOF
+        )
+        
+        // Second signature (chains to first SIGN)
+        let key2 = P256.Signing.PrivateKey()
+        let sig2 = try await DocumentSigningService.addSignature(
+            documentId: uploadResponse.documentId,
+            signerDID: "did:persona:signer2@company",
+            signerPublicKey: key2.publicKey.rawRepresentation.base64EncodedString(),
+            documentHash: documentHash,
+            privateKey: key2,
+            role: .participant,
+            previousEntryID: sig1.ledgerEntryID  // Chain to previous SIGN
+        )
+        
+        #expect(sig1.ledgerEntryID != sig2.ledgerEntryID, "Entry IDs should be unique")
+    }
+    
+    // MARK: - Finalize Tests
+    
+    @Test("Finalize document creates ATTEST entry")
+    func finalizeDocumentCreatesAttestEntry() async throws {
+        let documentData = "Final contract".data(using: .utf8)!
+        let documentHash = Data(SHA256.hash(data: documentData))
+        let authorDID = "did:persona:author@company"
+        
+        // Upload
+        let uploadResponse = try await DocumentSigningService.uploadDocument(
+            documentData: documentData,
+            authorDID: authorDID,
+            originalFilename: "contract.txt"
+        )
+        
+        // Add signature
+        let key = P256.Signing.PrivateKey()
+        let signResponse = try await DocumentSigningService.addSignature(
+            documentId: uploadResponse.documentId,
+            signerDID: authorDID,
+            signerPublicKey: key.publicKey.rawRepresentation.base64EncodedString(),
+            documentHash: documentHash,
+            privateKey: key,
+            role: .author,
+            previousEntryID: uploadResponse.ledgerProofEntryID
+        )
+        
+        // Finalize
+        let finalizeResponse = try await DocumentSigningService.finalizeDocument(
+            documentId: uploadResponse.documentId,
+            finalizedBy: authorDID,
+            signatureEntryIDs: [signResponse.ledgerEntryID]
+        )
+        
+        #expect(finalizeResponse.status == "finalized", "Status should be 'finalized'")
+        #expect(!finalizeResponse.ledgerAttestEntryID.isEmpty, "Attest entry ID should not be empty")
+        #expect(!finalizeResponse.finalizedAt.isEmpty, "Finalized timestamp should not be empty")
+    }
+    
+    @Test("Finalize requires signature entry IDs")
+    func finalizeRequiresSignatureEntryIDs() async throws {
+        let documentData = "Contract".data(using: .utf8)!
+        let authorDID = "did:persona:author@company"
+        
+        let uploadResponse = try await DocumentSigningService.uploadDocument(
+            documentData: documentData,
+            authorDID: authorDID,
+            originalFilename: "contract.txt"
+        )
+        
+        // Should fail with empty signature list
+        await #expect(throws: DocumentSigningError.self) {
+            try await DocumentSigningService.finalizeDocument(
+                documentId: uploadResponse.documentId,
+                finalizedBy: authorDID,
+                signatureEntryIDs: []  // ❌ Empty
+            )
+        }
+    }
+    
+    // MARK: - Status Tests
+    
+    @Test("Get signature status shows all signers")
+    func getSignatureStatusShowsAllSigners() async throws {
+        let documentData = "Multi-signer contract".data(using: .utf8)!
+        let documentHash = Data(SHA256.hash(data: documentData))
+        
+        // Upload
+        let uploadResponse = try await DocumentSigningService.uploadDocument(
+            documentData: documentData,
+            authorDID: "did:persona:author@company",
+            originalFilename: "contract.txt"
+        )
+        
+        // Add multiple signatures
+        let key1 = P256.Signing.PrivateKey()
+        _ = try await DocumentSigningService.addSignature(
+            documentId: uploadResponse.documentId,
+            signerDID: "did:persona:author@company",
+            signerPublicKey: key1.publicKey.rawRepresentation.base64EncodedString(),
+            documentHash: documentHash,
+            privateKey: key1,
+            role: .author,
+            previousEntryID: uploadResponse.ledgerProofEntryID
+        )
+        
+        let key2 = P256.Signing.PrivateKey()
+        _ = try await DocumentSigningService.addSignature(
+            documentId: uploadResponse.documentId,
+            signerDID: "did:persona:participant@company",
+            signerPublicKey: key2.publicKey.rawRepresentation.base64EncodedString(),
+            documentHash: documentHash,
+            privateKey: key2,
+            role: .participant,
+            previousEntryID: uploadResponse.ledgerProofEntryID
+        )
+        
+        // Get status
+        let status = try await DocumentSigningService.getSignatureStatus(
+            documentId: uploadResponse.documentId
+        )
+        
+        #expect(status.totalSignatures == 2, "Should have 2 signatures")
+        #expect(status.signaturesByRole["author"] == 1, "Should have 1 author")
+        #expect(status.signaturesByRole["participant"] == 1, "Should have 1 participant")
+        #expect(status.signers.count == 2, "Should have 2 signers")
+    }
+    
+    // MARK: - Audit Trail Tests
+    
+    @Test("Audit trail shows complete history")
+    func auditTrailShowsCompleteHistory() async throws {
+        let documentData = "Audited contract".data(using: .utf8)!
+        let documentHash = Data(SHA256.hash(data: documentData))
+        let authorDID = "did:persona:author@company"
+        
+        // Complete workflow
+        let uploadResponse = try await DocumentSigningService.uploadDocument(
+            documentData: documentData,
+            authorDID: authorDID,
+            originalFilename: "contract.txt"
+        )
+        
+        let key = P256.Signing.PrivateKey()
+        let signResponse = try await DocumentSigningService.addSignature(
+            documentId: uploadResponse.documentId,
+            signerDID: authorDID,
+            signerPublicKey: key.publicKey.rawRepresentation.base64EncodedString(),
+            documentHash: documentHash,
+            privateKey: key,
+            role: .author,
+            previousEntryID: uploadResponse.ledgerProofEntryID
+        )
+        
+        _ = try await DocumentSigningService.finalizeDocument(
+            documentId: uploadResponse.documentId,
+            finalizedBy: authorDID,
+            signatureEntryIDs: [signResponse.ledgerEntryID]
+        )
+        
+        // Get audit trail
+        let audit = try await DocumentSigningService.getAuditTrail(
+            documentId: uploadResponse.documentId
+        )
+        
+        #expect(audit.entries.count >= 3, "Should have at least 3 entries (PROOF, SIGN, ATTEST)")
+        
+        let entryTypes = audit.entries.map { $0.type }
+        #expect(entryTypes.contains("PROOF"), "Should have PROOF entry")
+        #expect(entryTypes.contains("SIGN"), "Should have SIGN entry")
+        #expect(entryTypes.contains("ATTEST"), "Should have ATTEST entry")
+    }
+    
+    // MARK: - Complete Workflow Tests
+    
+    @Test("Complete workflow with multiple signers")
+    func completeWorkflowWithMultipleSigners() async throws {
+        let documentData = "Full workflow contract".data(using: .utf8)!
+        
+        // Generate keys for each signer
+        let authorKey = P256.Signing.PrivateKey()
+        let authorPubKey = authorKey.publicKey.rawRepresentation.base64EncodedString()
+        
+        let participant1Key = P256.Signing.PrivateKey()
+        let participant1PubKey = participant1Key.publicKey.rawRepresentation.base64EncodedString()
+        
+        let participant2Key = P256.Signing.PrivateKey()
+        let participant2PubKey = participant2Key.publicKey.rawRepresentation.base64EncodedString()
+        
+        // Run complete workflow
+        let (documentId, attestEntryID) = try await DocumentSigningService.completeSigningWorkflow(
+            documentData: documentData,
+            authorDID: "did:persona:author@company",
+            authorPrivateKey: authorKey,
+            authorPublicKey: authorPubKey,
+            originalFilename: "contract.txt",
+            additionalSigners: [
+                (
+                    did: "did:persona:participant1@company",
+                    publicKey: participant1PubKey,
+                    privateKey: participant1Key,
+                    role: .participant
+                ),
+                (
+                    did: "did:persona:participant2@company",
+                    publicKey: participant2PubKey,
+                    privateKey: participant2Key,
+                    role: .participant
+                )
+            ]
+        )
+        
+        #expect(!documentId.isEmpty, "Document ID should not be empty")
+        #expect(!attestEntryID.isEmpty, "Attest entry ID should not be empty")
+        
+        // Verify status
+        let status = try await DocumentSigningService.getSignatureStatus(documentId: documentId)
+        #expect(status.totalSignatures == 3, "Should have 3 total signatures")
+        #expect(status.signaturesByRole["author"] == 1, "Should have 1 author")
+        #expect(status.signaturesByRole["participant"] == 2, "Should have 2 participants")
+    }
+    
+    @Test("Complete workflow with all roles")
+    func completeWorkflowWithAllRoles() async throws {
+        let documentData = "All roles contract".data(using: .utf8)!
+        
+        let authorKey = P256.Signing.PrivateKey()
+        let participantKey = P256.Signing.PrivateKey()
+        let witnessKey = P256.Signing.PrivateKey()
+        let notaryKey = P256.Signing.PrivateKey()
+        let reviewerKey = P256.Signing.PrivateKey()
+        
+        let (documentId, _) = try await DocumentSigningService.completeSigningWorkflow(
+            documentData: documentData,
+            authorDID: "did:persona:author@company",
+            authorPrivateKey: authorKey,
+            authorPublicKey: authorKey.publicKey.rawRepresentation.base64EncodedString(),
+            originalFilename: "contract.txt",
+            additionalSigners: [
+                (
+                    did: "did:persona:participant@company",
+                    publicKey: participantKey.publicKey.rawRepresentation.base64EncodedString(),
+                    privateKey: participantKey,
+                    role: .participant
+                ),
+                (
+                    did: "did:persona:witness@neutral",
+                    publicKey: witnessKey.publicKey.rawRepresentation.base64EncodedString(),
+                    privateKey: witnessKey,
+                    role: .witness
+                ),
+                (
+                    did: "did:persona:notary@official",
+                    publicKey: notaryKey.publicKey.rawRepresentation.base64EncodedString(),
+                    privateKey: notaryKey,
+                    role: .notary
+                ),
+                (
+                    did: "did:persona:reviewer@legal",
+                    publicKey: reviewerKey.publicKey.rawRepresentation.base64EncodedString(),
+                    privateKey: reviewerKey,
+                    role: .reviewer
+                )
+            ]
+        )
+        
+        // Verify all roles are present
+        let status = try await DocumentSigningService.getSignatureStatus(documentId: documentId)
+        
+        #expect(status.signaturesByRole["author"] == 1, "Should have author")
+        #expect(status.signaturesByRole["participant"] == 1, "Should have participant")
+        #expect(status.signaturesByRole["witness"] == 1, "Should have witness")
+        #expect(status.signaturesByRole["notary"] == 1, "Should have notary")
+        #expect(status.signaturesByRole["reviewer"] == 1, "Should have reviewer")
+    }
+    
+    // MARK: - Error Handling Tests
+    
+    @Test("Invalid document ID fails gracefully")
+    func invalidDocumentIDFailsGracefully() async throws {
+        await #expect(throws: DocumentSigningError.self) {
+            _ = try await DocumentSigningService.getSignatureStatus(
+                documentId: "invalid-doc-id-that-does-not-exist"
+            )
+        }
+    }
+    
+    @Test("Signature with invalid hash fails")
+    func signatureWithInvalidHashFails() async throws {
+        let documentData = "Test content".data(using: .utf8)!
+        
+        let uploadResponse = try await DocumentSigningService.uploadDocument(
+            documentData: documentData,
+            authorDID: "did:persona:author@company",
+            originalFilename: "test.txt"
+        )
+        
+        let key = P256.Signing.PrivateKey()
+        let wrongHash = Data(SHA256.hash(data: "wrong content".data(using: .utf8)!))
+        
+        await #expect(throws: DocumentSigningError.self) {
+            _ = try await DocumentSigningService.addSignature(
+                documentId: uploadResponse.documentId,
+                signerDID: "did:persona:author@company",
+                signerPublicKey: key.publicKey.rawRepresentation.base64EncodedString(),
+                documentHash: wrongHash,  // ❌ Wrong hash
+                privateKey: key,
+                role: .author,
+                previousEntryID: uploadResponse.ledgerProofEntryID
+            )
+        }
+    }
+}
+
+// MARK: - Legacy Compatibility Tests
+
+@Suite("Legacy Document Submission Tests")
+struct LegacyDocumentSubmissionTests {
+    
+    @Test("Legacy submitSignedDocumentFlow still works")
+    func legacySubmitStillWorks() async throws {
+        let documentData = "Legacy contract".data(using: .utf8)!
+        let privateKey = P256.Signing.PrivateKey()
+        let publicKey = privateKey.publicKey.rawRepresentation.base64EncodedString()
+        
+        // Should work with real DID (not "unknown")
+        try await submitSignedDocumentFlow(
+            documentData: documentData,
+            privateKey: privateKey,
+            personaDid: "did:persona:legacy@company",  // ✅ Real DID
+            personaPublicKey: publicKey,
+            isPublic: false,
+            documentId: "doc-legacy-test",
+            originalFilename: "legacy-contract.txt"
+        )
+    }
+    
+    @Test("Legacy function rejects unknown DID")
+    func legacyFunctionRejectsUnknownDID() async throws {
+        let documentData = "Test".data(using: .utf8)!
+        let privateKey = P256.Signing.PrivateKey()
+        let publicKey = privateKey.publicKey.rawRepresentation.base64EncodedString()
+        
+        // Should fail with "unknown" DID
+        await #expect(throws: Error.self) {
+            try await submitSignedDocumentFlow(
+                documentData: documentData,
+                privateKey: privateKey,
+                personaDid: "unknown",  // ❌ Not allowed
+                personaPublicKey: publicKey,
+                isPublic: false,
+                documentId: "doc-test",
+                originalFilename: "test.txt"
+            )
+        }
+    }
+}

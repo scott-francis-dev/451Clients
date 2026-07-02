@@ -1,0 +1,20 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.moved-aside
+
+# Xcode index/build cache that lands inside the .xcodeproj bundle
+*.xcodeproj/-Xcc/
+
+# Swift Package Manager
+.build/
+.swiftpm/xcode/package.xcworkspace/xcuserdata/
+
+# macOS
+.DS_Store
+
+# Archives / blobs
+*.zip
