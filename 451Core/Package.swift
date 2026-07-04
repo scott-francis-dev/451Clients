@@ -22,6 +22,9 @@ let package = Package(
             name: "Core451",
             dependencies: [],
             path: "Sources/Core451",
+            resources: [
+                .process("Resources/Onboarding")
+            ],
             swiftSettings: [
                 .swiftLanguageMode(.v5)
             ]

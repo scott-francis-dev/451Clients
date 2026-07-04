@@ -6,6 +6,14 @@ typealias StatusCardModel = PublishingCardsViewModel.StatusCardModel
 struct PublishingCardsStreamView: View {
     @StateObject private var model = PublishingCardsViewModel()
 
+    /// When true, `onAppear` drives a simulated publish sequence (placeholder
+    /// until real publishing-service events are wired in).
+    private let autoSimulate: Bool
+
+    init(autoSimulate: Bool = false) {
+        self.autoSimulate = autoSimulate
+    }
+
     var body: some View {
         VStack(spacing: 24) {
             ScrollView(.horizontal, showsIndicators: false) {
@@ -61,7 +69,11 @@ struct PublishingCardsStreamView: View {
         }
         .animation(.easeInOut, value: model.showCompletionCard)
         .onAppear {
-            model.reset()
+            if autoSimulate {
+                model.runSimulatedPublish()
+            } else {
+                model.reset()
+            }
         }
     }
 }

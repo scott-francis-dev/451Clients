@@ -48,29 +48,20 @@ extension Dictionary where Key == NSApplication.AboutPanelOptionKey, Value == An
 struct MyApp: App {
     @StateObject private var personaManager = PersonaManager()
 
-    // Persisted toggle like the predecessor’s “splashToggle”.
-    // Set to true initially to show once; set to false after dismiss.
-    // TEMPORARY: Using @State to show splash every launch (for development/testing)
-    // Switch back to @AppStorage("splashToggle") to show only once per install
-    @State private var splashToggle: Bool = true
-    // @AppStorage("splashToggle") private var splashToggle: Bool = true
-
     var body: some Scene {
         WindowGroup {
-            ZStack {
+            // Shared 451 app-root flow: typewriter splash -> first-run video
+            // onboarding -> main app. thesis is a soft-gate client, so no
+            // full-screen persona gate here (persona is required at publish time).
+            AppRootScaffold(
+                clientApp: .thesis,
+                configuration: .standard(for: .thesis)
+            ) { onFinished in
+                IntroView(onFinished: onFinished)
+            } content: {
                 MainAppView()
-                    .environmentObject(personaManager)
-
-                if splashToggle {
-                    SplashView {
-                        withAnimation(.easeInOut(duration: 0.25)) {
-                            splashToggle = false
-                        }
-                    }
-                    .transition(.opacity.combined(with: .scale))
-                    .zIndex(1000)
-                }
             }
+            .environmentObject(personaManager)
             .onAppear {
                 // If you want the splash every launch instead of once, comment out the @AppStorage
                 // and replace with a simple @State var that defaults to true on each run.
@@ -158,19 +149,6 @@ struct MainAppView: View {
         }
     }
 }
-
-// MARK: - Splash View
-
-private struct SplashView: View {
-    // Dismiss handler injected from parent
-    var onDismiss: () -> Void
-
-    var body: some View {
-        IntroView(onFinished: onDismiss)
-    }
-}
-
-
 
 // MARK: Date Formatter
 private let dateFormatter: DateFormatter = {

@@ -56,6 +56,12 @@ struct DraftEditorView: View {
     @State private var showRename = false
     @State private var tempTitle: String = ""
 
+    // Publish gate: publishing requires an active persona. If none exists,
+    // the shared soft-gate presents PersonaCreationView first.
+    @EnvironmentObject private var personaManager: PersonaManager
+    @State private var publishRequested = false
+    @State private var showPublishing = false
+
     // Controls tab bar visibility while this view is visible
     @State private var hideTabBar: Bool = true
 
@@ -404,6 +410,34 @@ struct DraftEditorView: View {
                 MetadataView(book: book, page: book.pages[selectedPageIndex])
             }
         }
+        // Publish is gated on having a persona (Thesis soft gate). If the user
+        // has none, PersonaCreationView is presented; publishing continues once
+        // a persona exists.
+        .requiresPersona(personaManager, isActive: $publishRequested, onSatisfied: performPublish) {
+            NavigationStack {
+                PersonaCreationView()
+                    .environmentObject(personaManager)
+            }
+        }
+        // Isolated on a background EmptyView so it doesn't collide with the
+        // metadata / persona-creation sheets attached above.
+        .background(
+            EmptyView()
+                .sheet(isPresented: $showPublishing) {
+                    NavigationStack {
+                        PublishingCardsStreamView(autoSimulate: true)
+                            .navigationTitle("Publishing")
+                            #if canImport(UIKit)
+                            .navigationBarTitleDisplayMode(.inline)
+                            #endif
+                            .toolbar {
+                                ToolbarItem(placement: .confirmationAction) {
+                                    Button("Done") { showPublishing = false }
+                                }
+                            }
+                    }
+                }
+        )
         .alert("Rename Draft", isPresented: $showRename) {
             TextField("Title", text: $tempTitle)
             Button("Cancel", role: .cancel) {}
@@ -484,11 +518,21 @@ struct DraftEditorView: View {
             }
             Button("View Metadata") { showMetadata = true }
             Divider()
-            Button("Publish") { print("Publish tapped") }
+            Button("Publish") { publishRequested = true }
         } label: {
             Image(systemName: "ellipsis.circle")
         }
         .help("More")
+    }
+
+    // MARK: - Publish
+
+    /// Called only once a persona is guaranteed to exist (see `.requiresPersona`).
+    private func performPublish() {
+        flushAndSaveCurrentPage()
+        // Present the publishing progress UI. Dispatched so any persona-creation
+        // sheet has finished dismissing before this sheet is presented.
+        DispatchQueue.main.async { showPublishing = true }
     }
 
     // MARK: - RichTextEditor attributed text binding

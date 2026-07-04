@@ -30,7 +30,7 @@ struct IntroView: View {
                 
                 // Main "thesis" text with typewriter effect
                 Text(textShown)
-                    .font(.custom("Courier New", size: 72))
+                    .font(.custom("Courier New", size: 60))
                     .fontWeight(.bold)
                     .tracking(36) // Double spacing between letters
                     .foregroundColor(.black)

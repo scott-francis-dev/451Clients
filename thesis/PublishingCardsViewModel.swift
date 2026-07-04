@@ -214,5 +214,43 @@ final class PublishingCardsViewModel: ObservableObject {
                 self?.showCompletionCard = true
             }
     }
+
+    // MARK: - Simulated publish sequence
+
+    /// Drives the four publishing phases with staged progress for demo/UI use.
+    ///
+    /// TODO: Replace these staged calls with real publishing-service events
+    /// (S3 uploads, blockchain head update, signature upload, search indexing).
+    func runSimulatedPublish() {
+        reset()
+
+        let providerSteps = [
+            Step(title: "Backblaze B2"),
+            Step(title: "Cloudflare R2"),
+            Step(title: "451 Info (MinIO)")
+        ]
+
+        schedule(0.1) { self.startPhaseInProgress(.s3Cloud, steps: providerSteps, initialProgress: 0.05) }
+        schedule(0.6) { self.updatePhaseProgress(.s3Cloud, progress: 0.33, completeStepAt: 0) }
+        schedule(1.1) { self.updatePhaseProgress(.s3Cloud, progress: 0.66, completeStepAt: 1) }
+        schedule(1.6) { self.updatePhaseProgress(.s3Cloud, progress: 1.0, completeStepAt: 2) }
+        schedule(1.8) { self.finishPhaseSuccess(.s3Cloud) }
+
+        schedule(1.9) { self.startPhaseInProgress(.blockchain, steps: [Step(title: "Compute head"), Step(title: "Commit head")], initialProgress: 0.25) }
+        schedule(2.5) { self.updatePhaseProgress(.blockchain, progress: 1.0, completeStepAt: 0, detail: "Head committed") }
+        schedule(2.7) { self.finishPhaseSuccess(.blockchain) }
+
+        schedule(2.8) { self.startPhaseInProgress(.signatureFile, steps: [Step(title: "Sign document"), Step(title: "Upload signature")], initialProgress: 0.25) }
+        schedule(3.4) { self.updatePhaseProgress(.signatureFile, progress: 1.0, completeStepAt: 1) }
+        schedule(3.6) { self.finishPhaseSuccess(.signatureFile) }
+
+        schedule(3.7) { self.startPhaseInProgress(.searchIndexing, steps: [Step(title: "Index metadata")], initialProgress: 0.4) }
+        schedule(4.3) { self.updatePhaseProgress(.searchIndexing, progress: 1.0, completeStepAt: 0) }
+        schedule(4.5) { self.finishPhaseSuccess(.searchIndexing) }
+    }
+
+    private func schedule(_ delay: TimeInterval, _ work: @escaping () -> Void) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: work)
+    }
 }
 
