@@ -9,8 +9,239 @@
 /* Begin PBXBuildFile section */
 		B61BF44E2FEAF21600F58A8C /* BigInt in Frameworks */ = {isa = PBXBuildFile; productRef = B61BF44D2FEAF21600F58A8C /* BigInt */; };
 		B62191D62F68221400DB6B2F /* PlatformImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62191D52F68221400DB6B2F /* PlatformImage.swift */; };
+		B687077C2FFAEA7B00025DF2 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707522FFAEA7B00025DF2 /* OnboardingFlowView.swift */; };
+		B687077D2FFAEA7B00025DF2 /* ConnectionModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707412FFAEA7B00025DF2 /* ConnectionModels.swift */; };
+		B687077E2FFAEA7B00025DF2 /* ClientLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073C2FFAEA7B00025DF2 /* ClientLogger.swift */; };
+		B687077F2FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707642FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift */; };
+		B68707802FFAEA7B00025DF2 /* DocumentMetadata451.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707632FFAEA7B00025DF2 /* DocumentMetadata451.swift */; };
+		B68707812FFAEA7B00025DF2 /* Document451.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707432FFAEA7B00025DF2 /* Document451.swift */; };
+		B68707822FFAEA7B00025DF2 /* PrivateDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707772FFAEA7B00025DF2 /* PrivateDataManager.swift */; };
+		B68707832FFAEA7B00025DF2 /* WalletAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707712FFAEA7B00025DF2 /* WalletAPI.swift */; };
+		B68707842FFAEA7B00025DF2 /* SignerSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074C2FFAEA7B00025DF2 /* SignerSelection.swift */; };
+		B68707852FFAEA7B00025DF2 /* EscrowService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707672FFAEA7B00025DF2 /* EscrowService.swift */; };
+		B68707862FFAEA7B00025DF2 /* WalletAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074E2FFAEA7B00025DF2 /* WalletAction.swift */; };
+		B68707872FFAEA7B00025DF2 /* SignedDocumentPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074B2FFAEA7B00025DF2 /* SignedDocumentPayload.swift */; };
+		B68707882FFAEA7B00025DF2 /* PrivateDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707782FFAEA7B00025DF2 /* PrivateDataStore.swift */; };
+		B68707892FFAEA7B00025DF2 /* OnboardingModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707532FFAEA7B00025DF2 /* OnboardingModels.swift */; };
+		B687078A2FFAEA7B00025DF2 /* BlockchainAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707612FFAEA7B00025DF2 /* BlockchainAPI.swift */; };
+		B687078B2FFAEA7B00025DF2 /* PersonaRequirement.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707562FFAEA7B00025DF2 /* PersonaRequirement.swift */; };
+		B687078C2FFAEA7B00025DF2 /* VCStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707792FFAEA7B00025DF2 /* VCStore.swift */; };
+		B687078D2FFAEA7B00025DF2 /* AppRootScaffold.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707392FFAEA7B00025DF2 /* AppRootScaffold.swift */; };
+		B687078E2FFAEA7B00025DF2 /* SignatorUploadMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074A2FFAEA7B00025DF2 /* SignatorUploadMetadata.swift */; };
+		B687078F2FFAEA7B00025DF2 /* VerifiableCredential.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074D2FFAEA7B00025DF2 /* VerifiableCredential.swift */; };
+		B68707902FFAEA7B00025DF2 /* ClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073A2FFAEA7B00025DF2 /* ClientApp.swift */; };
+		B68707912FFAEA7B00025DF2 /* ConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707502FFAEA7B00025DF2 /* ConnectionManager.swift */; };
+		B68707922FFAEA7B00025DF2 /* ServerConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073E2FFAEA7B00025DF2 /* ServerConfiguration.swift */; };
+		B68707932FFAEA7B00025DF2 /* ProposalVerificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076C2FFAEA7B00025DF2 /* ProposalVerificationService.swift */; };
+		B68707942FFAEA7B00025DF2 /* MilestoneModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707442FFAEA7B00025DF2 /* MilestoneModels.swift */; };
+		B68707952FFAEA7B00025DF2 /* PrivateKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076A2FFAEA7B00025DF2 /* PrivateKeyStore.swift */; };
+		B68707962FFAEA7B00025DF2 /* SignerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076F2FFAEA7B00025DF2 /* SignerService.swift */; };
+		B68707972FFAEA7B00025DF2 /* PersonaResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707692FFAEA7B00025DF2 /* PersonaResolver.swift */; };
+		B68707982FFAEA7B00025DF2 /* PersonaStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707762FFAEA7B00025DF2 /* PersonaStore.swift */; };
+		B68707992FFAEA7B00025DF2 /* CollaboratorsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707732FFAEA7B00025DF2 /* CollaboratorsStore.swift */; };
+		B687079A2FFAEA7B00025DF2 /* ServerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073D2FFAEA7B00025DF2 /* ServerConfig.swift */; };
+		B687079B2FFAEA7B00025DF2 /* InitiatedSigningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707742FFAEA7B00025DF2 /* InitiatedSigningStore.swift */; };
+		B687079C2FFAEA7B00025DF2 /* CredentialItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707422FFAEA7B00025DF2 /* CredentialItem.swift */; };
+		B687079D2FFAEA7B00025DF2 /* ProductionSSEClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076B2FFAEA7B00025DF2 /* ProductionSSEClient.swift */; };
+		B687079E2FFAEA7B00025DF2 /* PersonaManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707752FFAEA7B00025DF2 /* PersonaManager.swift */; };
+		B687079F2FFAEA7B00025DF2 /* Persona.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707452FFAEA7B00025DF2 /* Persona.swift */; };
+		B68707A02FFAEA7B00025DF2 /* PersonaPurpose.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707472FFAEA7B00025DF2 /* PersonaPurpose.swift */; };
+		B68707A12FFAEA7B00025DF2 /* OnboardingVideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707542FFAEA7B00025DF2 /* OnboardingVideoPlayer.swift */; };
+		B68707A22FFAEA7B00025DF2 /* ProposedPersona.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707482FFAEA7B00025DF2 /* ProposedPersona.swift */; };
+		B68707A32FFAEA7B00025DF2 /* DocumentSubmissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707662FFAEA7B00025DF2 /* DocumentSubmissionService.swift */; };
+		B68707A42FFAEA7B00025DF2 /* DocumentSigningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707652FFAEA7B00025DF2 /* DocumentSigningService.swift */; };
+		B68707A52FFAEA7B00025DF2 /* MilestoneService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707682FFAEA7B00025DF2 /* MilestoneService.swift */; };
+		B68707A62FFAEA7B00025DF2 /* ServerProgressMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076E2FFAEA7B00025DF2 /* ServerProgressMapper.swift */; };
+		B68707A72FFAEA7B00025DF2 /* SharedContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073F2FFAEA7B00025DF2 /* SharedContainer.swift */; };
+		B68707A82FFAEA7B00025DF2 /* CredentialVerificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707622FFAEA7B00025DF2 /* CredentialVerificationService.swift */; };
+		B68707A92FFAEA7B00025DF2 /* PersonaProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707462FFAEA7B00025DF2 /* PersonaProfile.swift */; };
+		B68707AA2FFAEA7B00025DF2 /* SecureEnclaveKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076D2FFAEA7B00025DF2 /* SecureEnclaveKeyStore.swift */; };
+		B68707AB2FFAEA7B00025DF2 /* ServerProgressEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707492FFAEA7B00025DF2 /* ServerProgressEvents.swift */; };
+		B68707AC2FFAEA7B00025DF2 /* SignerService+SecureEnclave.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707702FFAEA7B00025DF2 /* SignerService+SecureEnclave.swift */; };
+		B68707AD2FFAEA7B00025DF2 /* onboarding5.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075C2FFAEA7B00025DF2 /* onboarding5.mov */; };
+		B68707AE2FFAEA7B00025DF2 /* onboarding2.mov in Resources */ = {isa = PBXBuildFile; fileRef = B68707592FFAEA7B00025DF2 /* onboarding2.mov */; };
+		B68707AF2FFAEA7B00025DF2 /* onboarding7.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075E2FFAEA7B00025DF2 /* onboarding7.mov */; };
+		B68707B02FFAEA7B00025DF2 /* onboarding1.mov in Resources */ = {isa = PBXBuildFile; fileRef = B68707582FFAEA7B00025DF2 /* onboarding1.mov */; };
+		B68707B12FFAEA7B00025DF2 /* onboarding3.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075A2FFAEA7B00025DF2 /* onboarding3.mov */; };
+		B68707B22FFAEA7B00025DF2 /* onboarding6.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075D2FFAEA7B00025DF2 /* onboarding6.mov */; };
+		B68707B32FFAEA7B00025DF2 /* onboarding4.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075B2FFAEA7B00025DF2 /* onboarding4.mov */; };
+		B68707B42FFAEA7B00025DF2 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707522FFAEA7B00025DF2 /* OnboardingFlowView.swift */; };
+		B68707B52FFAEA7B00025DF2 /* ConnectionModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707412FFAEA7B00025DF2 /* ConnectionModels.swift */; };
+		B68707B62FFAEA7B00025DF2 /* ClientLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073C2FFAEA7B00025DF2 /* ClientLogger.swift */; };
+		B68707B72FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707642FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift */; };
+		B68707B82FFAEA7B00025DF2 /* DocumentMetadata451.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707632FFAEA7B00025DF2 /* DocumentMetadata451.swift */; };
+		B68707B92FFAEA7B00025DF2 /* Document451.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707432FFAEA7B00025DF2 /* Document451.swift */; };
+		B68707BA2FFAEA7B00025DF2 /* PrivateDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707772FFAEA7B00025DF2 /* PrivateDataManager.swift */; };
+		B68707BB2FFAEA7B00025DF2 /* WalletAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707712FFAEA7B00025DF2 /* WalletAPI.swift */; };
+		B68707BC2FFAEA7B00025DF2 /* SignerSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074C2FFAEA7B00025DF2 /* SignerSelection.swift */; };
+		B68707BD2FFAEA7B00025DF2 /* EscrowService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707672FFAEA7B00025DF2 /* EscrowService.swift */; };
+		B68707BE2FFAEA7B00025DF2 /* WalletAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074E2FFAEA7B00025DF2 /* WalletAction.swift */; };
+		B68707BF2FFAEA7B00025DF2 /* SignedDocumentPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074B2FFAEA7B00025DF2 /* SignedDocumentPayload.swift */; };
+		B68707C02FFAEA7B00025DF2 /* PrivateDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707782FFAEA7B00025DF2 /* PrivateDataStore.swift */; };
+		B68707C12FFAEA7B00025DF2 /* OnboardingModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707532FFAEA7B00025DF2 /* OnboardingModels.swift */; };
+		B68707C22FFAEA7B00025DF2 /* BlockchainAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707612FFAEA7B00025DF2 /* BlockchainAPI.swift */; };
+		B68707C32FFAEA7B00025DF2 /* PersonaRequirement.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707562FFAEA7B00025DF2 /* PersonaRequirement.swift */; };
+		B68707C42FFAEA7B00025DF2 /* VCStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707792FFAEA7B00025DF2 /* VCStore.swift */; };
+		B68707C52FFAEA7B00025DF2 /* AppRootScaffold.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707392FFAEA7B00025DF2 /* AppRootScaffold.swift */; };
+		B68707C62FFAEA7B00025DF2 /* SignatorUploadMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074A2FFAEA7B00025DF2 /* SignatorUploadMetadata.swift */; };
+		B68707C72FFAEA7B00025DF2 /* VerifiableCredential.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074D2FFAEA7B00025DF2 /* VerifiableCredential.swift */; };
+		B68707C82FFAEA7B00025DF2 /* ClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073A2FFAEA7B00025DF2 /* ClientApp.swift */; };
+		B68707C92FFAEA7B00025DF2 /* ConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707502FFAEA7B00025DF2 /* ConnectionManager.swift */; };
+		B68707CA2FFAEA7B00025DF2 /* ServerConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073E2FFAEA7B00025DF2 /* ServerConfiguration.swift */; };
+		B68707CB2FFAEA7B00025DF2 /* ProposalVerificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076C2FFAEA7B00025DF2 /* ProposalVerificationService.swift */; };
+		B68707CC2FFAEA7B00025DF2 /* MilestoneModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707442FFAEA7B00025DF2 /* MilestoneModels.swift */; };
+		B68707CD2FFAEA7B00025DF2 /* PrivateKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076A2FFAEA7B00025DF2 /* PrivateKeyStore.swift */; };
+		B68707CE2FFAEA7B00025DF2 /* SignerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076F2FFAEA7B00025DF2 /* SignerService.swift */; };
+		B68707CF2FFAEA7B00025DF2 /* PersonaResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707692FFAEA7B00025DF2 /* PersonaResolver.swift */; };
+		B68707D02FFAEA7B00025DF2 /* PersonaStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707762FFAEA7B00025DF2 /* PersonaStore.swift */; };
+		B68707D12FFAEA7B00025DF2 /* CollaboratorsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707732FFAEA7B00025DF2 /* CollaboratorsStore.swift */; };
+		B68707D22FFAEA7B00025DF2 /* ServerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073D2FFAEA7B00025DF2 /* ServerConfig.swift */; };
+		B68707D32FFAEA7B00025DF2 /* InitiatedSigningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707742FFAEA7B00025DF2 /* InitiatedSigningStore.swift */; };
+		B68707D42FFAEA7B00025DF2 /* CredentialItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707422FFAEA7B00025DF2 /* CredentialItem.swift */; };
+		B68707D52FFAEA7B00025DF2 /* ProductionSSEClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076B2FFAEA7B00025DF2 /* ProductionSSEClient.swift */; };
+		B68707D62FFAEA7B00025DF2 /* PersonaManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707752FFAEA7B00025DF2 /* PersonaManager.swift */; };
+		B68707D72FFAEA7B00025DF2 /* Persona.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707452FFAEA7B00025DF2 /* Persona.swift */; };
+		B68707D82FFAEA7B00025DF2 /* PersonaPurpose.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707472FFAEA7B00025DF2 /* PersonaPurpose.swift */; };
+		B68707D92FFAEA7B00025DF2 /* OnboardingVideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707542FFAEA7B00025DF2 /* OnboardingVideoPlayer.swift */; };
+		B68707DA2FFAEA7B00025DF2 /* ProposedPersona.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707482FFAEA7B00025DF2 /* ProposedPersona.swift */; };
+		B68707DB2FFAEA7B00025DF2 /* DocumentSubmissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707662FFAEA7B00025DF2 /* DocumentSubmissionService.swift */; };
+		B68707DC2FFAEA7B00025DF2 /* DocumentSigningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707652FFAEA7B00025DF2 /* DocumentSigningService.swift */; };
+		B68707DD2FFAEA7B00025DF2 /* MilestoneService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707682FFAEA7B00025DF2 /* MilestoneService.swift */; };
+		B68707DE2FFAEA7B00025DF2 /* ServerProgressMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076E2FFAEA7B00025DF2 /* ServerProgressMapper.swift */; };
+		B68707DF2FFAEA7B00025DF2 /* SharedContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073F2FFAEA7B00025DF2 /* SharedContainer.swift */; };
+		B68707E02FFAEA7B00025DF2 /* CredentialVerificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707622FFAEA7B00025DF2 /* CredentialVerificationService.swift */; };
+		B68707E12FFAEA7B00025DF2 /* PersonaProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707462FFAEA7B00025DF2 /* PersonaProfile.swift */; };
+		B68707E22FFAEA7B00025DF2 /* SecureEnclaveKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076D2FFAEA7B00025DF2 /* SecureEnclaveKeyStore.swift */; };
+		B68707E32FFAEA7B00025DF2 /* ServerProgressEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707492FFAEA7B00025DF2 /* ServerProgressEvents.swift */; };
+		B68707E42FFAEA7B00025DF2 /* SignerService+SecureEnclave.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707702FFAEA7B00025DF2 /* SignerService+SecureEnclave.swift */; };
+		B68707E52FFAEA7B00025DF2 /* onboarding5.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075C2FFAEA7B00025DF2 /* onboarding5.mov */; };
+		B68707E62FFAEA7B00025DF2 /* onboarding2.mov in Resources */ = {isa = PBXBuildFile; fileRef = B68707592FFAEA7B00025DF2 /* onboarding2.mov */; };
+		B68707E72FFAEA7B00025DF2 /* onboarding7.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075E2FFAEA7B00025DF2 /* onboarding7.mov */; };
+		B68707E82FFAEA7B00025DF2 /* onboarding1.mov in Resources */ = {isa = PBXBuildFile; fileRef = B68707582FFAEA7B00025DF2 /* onboarding1.mov */; };
+		B68707E92FFAEA7B00025DF2 /* onboarding3.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075A2FFAEA7B00025DF2 /* onboarding3.mov */; };
+		B68707EA2FFAEA7B00025DF2 /* onboarding6.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075D2FFAEA7B00025DF2 /* onboarding6.mov */; };
+		B68707EB2FFAEA7B00025DF2 /* onboarding4.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075B2FFAEA7B00025DF2 /* onboarding4.mov */; };
+		B68707EC2FFAEA7B00025DF2 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707522FFAEA7B00025DF2 /* OnboardingFlowView.swift */; };
+		B68707ED2FFAEA7B00025DF2 /* ConnectionModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707412FFAEA7B00025DF2 /* ConnectionModels.swift */; };
+		B68707EE2FFAEA7B00025DF2 /* ClientLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073C2FFAEA7B00025DF2 /* ClientLogger.swift */; };
+		B68707EF2FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707642FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift */; };
+		B68707F02FFAEA7B00025DF2 /* DocumentMetadata451.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707632FFAEA7B00025DF2 /* DocumentMetadata451.swift */; };
+		B68707F12FFAEA7B00025DF2 /* Document451.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707432FFAEA7B00025DF2 /* Document451.swift */; };
+		B68707F22FFAEA7B00025DF2 /* PrivateDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707772FFAEA7B00025DF2 /* PrivateDataManager.swift */; };
+		B68707F32FFAEA7B00025DF2 /* WalletAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707712FFAEA7B00025DF2 /* WalletAPI.swift */; };
+		B68707F42FFAEA7B00025DF2 /* SignerSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074C2FFAEA7B00025DF2 /* SignerSelection.swift */; };
+		B68707F52FFAEA7B00025DF2 /* EscrowService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707672FFAEA7B00025DF2 /* EscrowService.swift */; };
+		B68707F62FFAEA7B00025DF2 /* WalletAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074E2FFAEA7B00025DF2 /* WalletAction.swift */; };
+		B68707F72FFAEA7B00025DF2 /* SignedDocumentPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074B2FFAEA7B00025DF2 /* SignedDocumentPayload.swift */; };
+		B68707F82FFAEA7B00025DF2 /* PrivateDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707782FFAEA7B00025DF2 /* PrivateDataStore.swift */; };
+		B68707F92FFAEA7B00025DF2 /* OnboardingModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707532FFAEA7B00025DF2 /* OnboardingModels.swift */; };
+		B68707FA2FFAEA7B00025DF2 /* BlockchainAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707612FFAEA7B00025DF2 /* BlockchainAPI.swift */; };
+		B68707FB2FFAEA7B00025DF2 /* PersonaRequirement.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707562FFAEA7B00025DF2 /* PersonaRequirement.swift */; };
+		B68707FC2FFAEA7B00025DF2 /* VCStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707792FFAEA7B00025DF2 /* VCStore.swift */; };
+		B68707FD2FFAEA7B00025DF2 /* AppRootScaffold.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707392FFAEA7B00025DF2 /* AppRootScaffold.swift */; };
+		B68707FE2FFAEA7B00025DF2 /* SignatorUploadMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074A2FFAEA7B00025DF2 /* SignatorUploadMetadata.swift */; };
+		B68707FF2FFAEA7B00025DF2 /* VerifiableCredential.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074D2FFAEA7B00025DF2 /* VerifiableCredential.swift */; };
+		B68708002FFAEA7B00025DF2 /* ClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073A2FFAEA7B00025DF2 /* ClientApp.swift */; };
+		B68708012FFAEA7B00025DF2 /* ConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707502FFAEA7B00025DF2 /* ConnectionManager.swift */; };
+		B68708022FFAEA7B00025DF2 /* ServerConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073E2FFAEA7B00025DF2 /* ServerConfiguration.swift */; };
+		B68708032FFAEA7B00025DF2 /* ProposalVerificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076C2FFAEA7B00025DF2 /* ProposalVerificationService.swift */; };
+		B68708042FFAEA7B00025DF2 /* MilestoneModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707442FFAEA7B00025DF2 /* MilestoneModels.swift */; };
+		B68708052FFAEA7B00025DF2 /* PrivateKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076A2FFAEA7B00025DF2 /* PrivateKeyStore.swift */; };
+		B68708062FFAEA7B00025DF2 /* SignerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076F2FFAEA7B00025DF2 /* SignerService.swift */; };
+		B68708072FFAEA7B00025DF2 /* PersonaResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707692FFAEA7B00025DF2 /* PersonaResolver.swift */; };
+		B68708082FFAEA7B00025DF2 /* PersonaStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707762FFAEA7B00025DF2 /* PersonaStore.swift */; };
+		B68708092FFAEA7B00025DF2 /* CollaboratorsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707732FFAEA7B00025DF2 /* CollaboratorsStore.swift */; };
+		B687080A2FFAEA7B00025DF2 /* ServerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073D2FFAEA7B00025DF2 /* ServerConfig.swift */; };
+		B687080B2FFAEA7B00025DF2 /* InitiatedSigningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707742FFAEA7B00025DF2 /* InitiatedSigningStore.swift */; };
+		B687080C2FFAEA7B00025DF2 /* CredentialItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707422FFAEA7B00025DF2 /* CredentialItem.swift */; };
+		B687080D2FFAEA7B00025DF2 /* ProductionSSEClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076B2FFAEA7B00025DF2 /* ProductionSSEClient.swift */; };
+		B687080E2FFAEA7B00025DF2 /* PersonaManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707752FFAEA7B00025DF2 /* PersonaManager.swift */; };
+		B687080F2FFAEA7B00025DF2 /* Persona.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707452FFAEA7B00025DF2 /* Persona.swift */; };
+		B68708102FFAEA7B00025DF2 /* PersonaPurpose.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707472FFAEA7B00025DF2 /* PersonaPurpose.swift */; };
+		B68708112FFAEA7B00025DF2 /* OnboardingVideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707542FFAEA7B00025DF2 /* OnboardingVideoPlayer.swift */; };
+		B68708122FFAEA7B00025DF2 /* ProposedPersona.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707482FFAEA7B00025DF2 /* ProposedPersona.swift */; };
+		B68708132FFAEA7B00025DF2 /* DocumentSubmissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707662FFAEA7B00025DF2 /* DocumentSubmissionService.swift */; };
+		B68708142FFAEA7B00025DF2 /* DocumentSigningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707652FFAEA7B00025DF2 /* DocumentSigningService.swift */; };
+		B68708152FFAEA7B00025DF2 /* MilestoneService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707682FFAEA7B00025DF2 /* MilestoneService.swift */; };
+		B68708162FFAEA7B00025DF2 /* ServerProgressMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076E2FFAEA7B00025DF2 /* ServerProgressMapper.swift */; };
+		B68708172FFAEA7B00025DF2 /* SharedContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073F2FFAEA7B00025DF2 /* SharedContainer.swift */; };
+		B68708182FFAEA7B00025DF2 /* CredentialVerificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707622FFAEA7B00025DF2 /* CredentialVerificationService.swift */; };
+		B68708192FFAEA7B00025DF2 /* PersonaProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707462FFAEA7B00025DF2 /* PersonaProfile.swift */; };
+		B687081A2FFAEA7B00025DF2 /* SecureEnclaveKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076D2FFAEA7B00025DF2 /* SecureEnclaveKeyStore.swift */; };
+		B687081B2FFAEA7B00025DF2 /* ServerProgressEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707492FFAEA7B00025DF2 /* ServerProgressEvents.swift */; };
+		B687081C2FFAEA7B00025DF2 /* SignerService+SecureEnclave.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707702FFAEA7B00025DF2 /* SignerService+SecureEnclave.swift */; };
+		B687081D2FFAEA7B00025DF2 /* onboarding5.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075C2FFAEA7B00025DF2 /* onboarding5.mov */; };
+		B687081E2FFAEA7B00025DF2 /* onboarding2.mov in Resources */ = {isa = PBXBuildFile; fileRef = B68707592FFAEA7B00025DF2 /* onboarding2.mov */; };
+		B687081F2FFAEA7B00025DF2 /* onboarding7.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075E2FFAEA7B00025DF2 /* onboarding7.mov */; };
+		B68708202FFAEA7B00025DF2 /* onboarding1.mov in Resources */ = {isa = PBXBuildFile; fileRef = B68707582FFAEA7B00025DF2 /* onboarding1.mov */; };
+		B68708212FFAEA7B00025DF2 /* onboarding3.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075A2FFAEA7B00025DF2 /* onboarding3.mov */; };
+		B68708222FFAEA7B00025DF2 /* onboarding6.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075D2FFAEA7B00025DF2 /* onboarding6.mov */; };
+		B68708232FFAEA7B00025DF2 /* onboarding4.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075B2FFAEA7B00025DF2 /* onboarding4.mov */; };
+		B68708242FFAEA7B00025DF2 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707522FFAEA7B00025DF2 /* OnboardingFlowView.swift */; };
+		B68708252FFAEA7B00025DF2 /* ConnectionModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707412FFAEA7B00025DF2 /* ConnectionModels.swift */; };
+		B68708262FFAEA7B00025DF2 /* ClientLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073C2FFAEA7B00025DF2 /* ClientLogger.swift */; };
+		B68708272FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707642FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift */; };
+		B68708282FFAEA7B00025DF2 /* DocumentMetadata451.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707632FFAEA7B00025DF2 /* DocumentMetadata451.swift */; };
+		B68708292FFAEA7B00025DF2 /* Document451.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707432FFAEA7B00025DF2 /* Document451.swift */; };
+		B687082A2FFAEA7B00025DF2 /* PrivateDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707772FFAEA7B00025DF2 /* PrivateDataManager.swift */; };
+		B687082B2FFAEA7B00025DF2 /* WalletAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707712FFAEA7B00025DF2 /* WalletAPI.swift */; };
+		B687082C2FFAEA7B00025DF2 /* SignerSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074C2FFAEA7B00025DF2 /* SignerSelection.swift */; };
+		B687082D2FFAEA7B00025DF2 /* EscrowService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707672FFAEA7B00025DF2 /* EscrowService.swift */; };
+		B687082E2FFAEA7B00025DF2 /* WalletAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074E2FFAEA7B00025DF2 /* WalletAction.swift */; };
+		B687082F2FFAEA7B00025DF2 /* SignedDocumentPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074B2FFAEA7B00025DF2 /* SignedDocumentPayload.swift */; };
+		B68708302FFAEA7B00025DF2 /* PrivateDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707782FFAEA7B00025DF2 /* PrivateDataStore.swift */; };
+		B68708312FFAEA7B00025DF2 /* OnboardingModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707532FFAEA7B00025DF2 /* OnboardingModels.swift */; };
+		B68708322FFAEA7B00025DF2 /* BlockchainAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707612FFAEA7B00025DF2 /* BlockchainAPI.swift */; };
+		B68708332FFAEA7B00025DF2 /* PersonaRequirement.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707562FFAEA7B00025DF2 /* PersonaRequirement.swift */; };
+		B68708342FFAEA7B00025DF2 /* VCStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707792FFAEA7B00025DF2 /* VCStore.swift */; };
+		B68708352FFAEA7B00025DF2 /* AppRootScaffold.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707392FFAEA7B00025DF2 /* AppRootScaffold.swift */; };
+		B68708362FFAEA7B00025DF2 /* SignatorUploadMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074A2FFAEA7B00025DF2 /* SignatorUploadMetadata.swift */; };
+		B68708372FFAEA7B00025DF2 /* VerifiableCredential.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074D2FFAEA7B00025DF2 /* VerifiableCredential.swift */; };
+		B68708382FFAEA7B00025DF2 /* ClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073A2FFAEA7B00025DF2 /* ClientApp.swift */; };
+		B68708392FFAEA7B00025DF2 /* ConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707502FFAEA7B00025DF2 /* ConnectionManager.swift */; };
+		B687083A2FFAEA7B00025DF2 /* ServerConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073E2FFAEA7B00025DF2 /* ServerConfiguration.swift */; };
+		B687083B2FFAEA7B00025DF2 /* ProposalVerificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076C2FFAEA7B00025DF2 /* ProposalVerificationService.swift */; };
+		B687083C2FFAEA7B00025DF2 /* MilestoneModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707442FFAEA7B00025DF2 /* MilestoneModels.swift */; };
+		B687083D2FFAEA7B00025DF2 /* PrivateKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076A2FFAEA7B00025DF2 /* PrivateKeyStore.swift */; };
+		B687083E2FFAEA7B00025DF2 /* SignerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076F2FFAEA7B00025DF2 /* SignerService.swift */; };
+		B687083F2FFAEA7B00025DF2 /* PersonaResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707692FFAEA7B00025DF2 /* PersonaResolver.swift */; };
+		B68708402FFAEA7B00025DF2 /* PersonaStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707762FFAEA7B00025DF2 /* PersonaStore.swift */; };
+		B68708412FFAEA7B00025DF2 /* CollaboratorsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707732FFAEA7B00025DF2 /* CollaboratorsStore.swift */; };
+		B68708422FFAEA7B00025DF2 /* ServerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073D2FFAEA7B00025DF2 /* ServerConfig.swift */; };
+		B68708432FFAEA7B00025DF2 /* InitiatedSigningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707742FFAEA7B00025DF2 /* InitiatedSigningStore.swift */; };
+		B68708442FFAEA7B00025DF2 /* CredentialItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707422FFAEA7B00025DF2 /* CredentialItem.swift */; };
+		B68708452FFAEA7B00025DF2 /* ProductionSSEClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076B2FFAEA7B00025DF2 /* ProductionSSEClient.swift */; };
+		B68708462FFAEA7B00025DF2 /* PersonaManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707752FFAEA7B00025DF2 /* PersonaManager.swift */; };
+		B68708472FFAEA7B00025DF2 /* Persona.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707452FFAEA7B00025DF2 /* Persona.swift */; };
+		B68708482FFAEA7B00025DF2 /* PersonaPurpose.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707472FFAEA7B00025DF2 /* PersonaPurpose.swift */; };
+		B68708492FFAEA7B00025DF2 /* OnboardingVideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707542FFAEA7B00025DF2 /* OnboardingVideoPlayer.swift */; };
+		B687084A2FFAEA7B00025DF2 /* ProposedPersona.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707482FFAEA7B00025DF2 /* ProposedPersona.swift */; };
+		B687084B2FFAEA7B00025DF2 /* DocumentSubmissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707662FFAEA7B00025DF2 /* DocumentSubmissionService.swift */; };
+		B687084C2FFAEA7B00025DF2 /* DocumentSigningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707652FFAEA7B00025DF2 /* DocumentSigningService.swift */; };
+		B687084D2FFAEA7B00025DF2 /* MilestoneService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707682FFAEA7B00025DF2 /* MilestoneService.swift */; };
+		B687084E2FFAEA7B00025DF2 /* ServerProgressMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076E2FFAEA7B00025DF2 /* ServerProgressMapper.swift */; };
+		B687084F2FFAEA7B00025DF2 /* SharedContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687073F2FFAEA7B00025DF2 /* SharedContainer.swift */; };
+		B68708502FFAEA7B00025DF2 /* CredentialVerificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707622FFAEA7B00025DF2 /* CredentialVerificationService.swift */; };
+		B68708512FFAEA7B00025DF2 /* PersonaProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707462FFAEA7B00025DF2 /* PersonaProfile.swift */; };
+		B68708522FFAEA7B00025DF2 /* SecureEnclaveKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687076D2FFAEA7B00025DF2 /* SecureEnclaveKeyStore.swift */; };
+		B68708532FFAEA7B00025DF2 /* ServerProgressEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707492FFAEA7B00025DF2 /* ServerProgressEvents.swift */; };
+		B68708542FFAEA7B00025DF2 /* SignerService+SecureEnclave.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707702FFAEA7B00025DF2 /* SignerService+SecureEnclave.swift */; };
+		B68708552FFAEA7B00025DF2 /* onboarding5.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075C2FFAEA7B00025DF2 /* onboarding5.mov */; };
+		B68708562FFAEA7B00025DF2 /* onboarding2.mov in Resources */ = {isa = PBXBuildFile; fileRef = B68707592FFAEA7B00025DF2 /* onboarding2.mov */; };
+		B68708572FFAEA7B00025DF2 /* onboarding7.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075E2FFAEA7B00025DF2 /* onboarding7.mov */; };
+		B68708582FFAEA7B00025DF2 /* onboarding1.mov in Resources */ = {isa = PBXBuildFile; fileRef = B68707582FFAEA7B00025DF2 /* onboarding1.mov */; };
+		B68708592FFAEA7B00025DF2 /* onboarding3.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075A2FFAEA7B00025DF2 /* onboarding3.mov */; };
+		B687085A2FFAEA7B00025DF2 /* onboarding6.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075D2FFAEA7B00025DF2 /* onboarding6.mov */; };
+		B687085B2FFAEA7B00025DF2 /* onboarding4.mov in Resources */ = {isa = PBXBuildFile; fileRef = B687075B2FFAEA7B00025DF2 /* onboarding4.mov */; };
+		B68708612FFB154000025DF2 /* ActionDeckCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68708602FFB154000025DF2 /* ActionDeckCard.swift */; };
+		B68708622FFB154000025DF2 /* ActionDeckCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68708602FFB154000025DF2 /* ActionDeckCard.swift */; };
+		B68708632FFB154000025DF2 /* ActionDeckCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68708602FFB154000025DF2 /* ActionDeckCard.swift */; };
+		B68708642FFB154000025DF2 /* ActionDeckCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68708602FFB154000025DF2 /* ActionDeckCard.swift */; };
+		B68708662FFB155400025DF2 /* ActionCardDeck.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68708652FFB155400025DF2 /* ActionCardDeck.swift */; };
+		B68708672FFB155400025DF2 /* ActionCardDeck.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68708652FFB155400025DF2 /* ActionCardDeck.swift */; };
+		B68708682FFB155400025DF2 /* ActionCardDeck.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68708652FFB155400025DF2 /* ActionCardDeck.swift */; };
+		B68708692FFB155400025DF2 /* ActionCardDeck.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68708652FFB155400025DF2 /* ActionCardDeck.swift */; };
 		B6BD6A242FC70BB100007593 /* RichTextKit in Frameworks */ = {isa = PBXBuildFile; productRef = B6BD6A232FC70BB100007593 /* RichTextKit */; };
-		B6F041832FE0CEF400B53555 /* Core451 in Frameworks */ = {isa = PBXBuildFile; productRef = B6F041822FE0CEF400B53555 /* Core451 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +284,66 @@
 		A457B4FB43074012B9189F4D /* Signator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Signator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B62191D52F68221400DB6B2F /* PlatformImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformImage.swift; sourceTree = "<group>"; };
 		B67581A72FC70AC500104D92 /* Core451 */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Core451; path = ../Core451; sourceTree = "<group>"; };
+		B68707392FFAEA7B00025DF2 /* AppRootScaffold.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRootScaffold.swift; sourceTree = "<group>"; };
+		B687073A2FFAEA7B00025DF2 /* ClientApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientApp.swift; sourceTree = "<group>"; };
+		B687073C2FFAEA7B00025DF2 /* ClientLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientLogger.swift; sourceTree = "<group>"; };
+		B687073D2FFAEA7B00025DF2 /* ServerConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerConfig.swift; sourceTree = "<group>"; };
+		B687073E2FFAEA7B00025DF2 /* ServerConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerConfiguration.swift; sourceTree = "<group>"; };
+		B687073F2FFAEA7B00025DF2 /* SharedContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedContainer.swift; sourceTree = "<group>"; };
+		B68707412FFAEA7B00025DF2 /* ConnectionModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionModels.swift; sourceTree = "<group>"; };
+		B68707422FFAEA7B00025DF2 /* CredentialItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialItem.swift; sourceTree = "<group>"; };
+		B68707432FFAEA7B00025DF2 /* Document451.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document451.swift; sourceTree = "<group>"; };
+		B68707442FFAEA7B00025DF2 /* MilestoneModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilestoneModels.swift; sourceTree = "<group>"; };
+		B68707452FFAEA7B00025DF2 /* Persona.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persona.swift; sourceTree = "<group>"; };
+		B68707462FFAEA7B00025DF2 /* PersonaProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonaProfile.swift; sourceTree = "<group>"; };
+		B68707472FFAEA7B00025DF2 /* PersonaPurpose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonaPurpose.swift; sourceTree = "<group>"; };
+		B68707482FFAEA7B00025DF2 /* ProposedPersona.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposedPersona.swift; sourceTree = "<group>"; };
+		B68707492FFAEA7B00025DF2 /* ServerProgressEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerProgressEvents.swift; sourceTree = "<group>"; };
+		B687074A2FFAEA7B00025DF2 /* SignatorUploadMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatorUploadMetadata.swift; sourceTree = "<group>"; };
+		B687074B2FFAEA7B00025DF2 /* SignedDocumentPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignedDocumentPayload.swift; sourceTree = "<group>"; };
+		B687074C2FFAEA7B00025DF2 /* SignerSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignerSelection.swift; sourceTree = "<group>"; };
+		B687074D2FFAEA7B00025DF2 /* VerifiableCredential.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifiableCredential.swift; sourceTree = "<group>"; };
+		B687074E2FFAEA7B00025DF2 /* WalletAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAction.swift; sourceTree = "<group>"; };
+		B68707502FFAEA7B00025DF2 /* ConnectionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionManager.swift; sourceTree = "<group>"; };
+		B68707522FFAEA7B00025DF2 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
+		B68707532FFAEA7B00025DF2 /* OnboardingModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingModels.swift; sourceTree = "<group>"; };
+		B68707542FFAEA7B00025DF2 /* OnboardingVideoPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingVideoPlayer.swift; sourceTree = "<group>"; };
+		B68707562FFAEA7B00025DF2 /* PersonaRequirement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonaRequirement.swift; sourceTree = "<group>"; };
+		B68707582FFAEA7B00025DF2 /* onboarding1.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = onboarding1.mov; sourceTree = "<group>"; };
+		B68707592FFAEA7B00025DF2 /* onboarding2.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = onboarding2.mov; sourceTree = "<group>"; };
+		B687075A2FFAEA7B00025DF2 /* onboarding3.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = onboarding3.mov; sourceTree = "<group>"; };
+		B687075B2FFAEA7B00025DF2 /* onboarding4.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = onboarding4.mov; sourceTree = "<group>"; };
+		B687075C2FFAEA7B00025DF2 /* onboarding5.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = onboarding5.mov; sourceTree = "<group>"; };
+		B687075D2FFAEA7B00025DF2 /* onboarding6.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = onboarding6.mov; sourceTree = "<group>"; };
+		B687075E2FFAEA7B00025DF2 /* onboarding7.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = onboarding7.mov; sourceTree = "<group>"; };
+		B68707612FFAEA7B00025DF2 /* BlockchainAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainAPI.swift; sourceTree = "<group>"; };
+		B68707622FFAEA7B00025DF2 /* CredentialVerificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialVerificationService.swift; sourceTree = "<group>"; };
+		B68707632FFAEA7B00025DF2 /* DocumentMetadata451.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentMetadata451.swift; sourceTree = "<group>"; };
+		B68707642FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentMetadataEmbedding.swift; sourceTree = "<group>"; };
+		B68707652FFAEA7B00025DF2 /* DocumentSigningService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentSigningService.swift; sourceTree = "<group>"; };
+		B68707662FFAEA7B00025DF2 /* DocumentSubmissionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentSubmissionService.swift; sourceTree = "<group>"; };
+		B68707672FFAEA7B00025DF2 /* EscrowService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EscrowService.swift; sourceTree = "<group>"; };
+		B68707682FFAEA7B00025DF2 /* MilestoneService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilestoneService.swift; sourceTree = "<group>"; };
+		B68707692FFAEA7B00025DF2 /* PersonaResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonaResolver.swift; sourceTree = "<group>"; };
+		B687076A2FFAEA7B00025DF2 /* PrivateKeyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateKeyStore.swift; sourceTree = "<group>"; };
+		B687076B2FFAEA7B00025DF2 /* ProductionSSEClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductionSSEClient.swift; sourceTree = "<group>"; };
+		B687076C2FFAEA7B00025DF2 /* ProposalVerificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposalVerificationService.swift; sourceTree = "<group>"; };
+		B687076D2FFAEA7B00025DF2 /* SecureEnclaveKeyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureEnclaveKeyStore.swift; sourceTree = "<group>"; };
+		B687076E2FFAEA7B00025DF2 /* ServerProgressMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerProgressMapper.swift; sourceTree = "<group>"; };
+		B687076F2FFAEA7B00025DF2 /* SignerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignerService.swift; sourceTree = "<group>"; };
+		B68707702FFAEA7B00025DF2 /* SignerService+SecureEnclave.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignerService+SecureEnclave.swift"; sourceTree = "<group>"; };
+		B68707712FFAEA7B00025DF2 /* WalletAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAPI.swift; sourceTree = "<group>"; };
+		B68707732FFAEA7B00025DF2 /* CollaboratorsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollaboratorsStore.swift; sourceTree = "<group>"; };
+		B68707742FFAEA7B00025DF2 /* InitiatedSigningStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitiatedSigningStore.swift; sourceTree = "<group>"; };
+		B68707752FFAEA7B00025DF2 /* PersonaManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonaManager.swift; sourceTree = "<group>"; };
+		B68707762FFAEA7B00025DF2 /* PersonaStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonaStore.swift; sourceTree = "<group>"; };
+		B68707772FFAEA7B00025DF2 /* PrivateDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateDataManager.swift; sourceTree = "<group>"; };
+		B68707782FFAEA7B00025DF2 /* PrivateDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateDataStore.swift; sourceTree = "<group>"; };
+		B68707792FFAEA7B00025DF2 /* VCStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VCStore.swift; sourceTree = "<group>"; };
+		B68708602FFB154000025DF2 /* ActionDeckCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionDeckCard.swift; sourceTree = "<group>"; };
+		B68708652FFB155400025DF2 /* ActionCardDeck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionCardDeck.swift; sourceTree = "<group>"; };
+		B6A447842FF8C0AD0009046A /* 451Clients.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = 451Clients.xcodeproj; sourceTree = SOURCE_ROOT; };
+		B6A447872FF8C0B00009046A /* 451Clients.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = 451Clients.xcodeproj; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -128,7 +419,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				B61BF44E2FEAF21600F58A8C /* BigInt in Frameworks */,
-				B6F041832FE0CEF400B53555 /* Core451 in Frameworks */,
 				B6BD6A242FC70BB100007593 /* RichTextKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -153,6 +443,7 @@
 		8647FBCA2E71B8220052666E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B62191D52F68221400DB6B2F /* PlatformImage.swift */,
 				B67581A72FC70AC500104D92 /* Core451 */,
 				860328EB2E71EC0200201CCD /* ActivityKit.framework */,
 				8647FBCB2E71B8220052666E /* WidgetKit.framework */,
@@ -164,13 +455,15 @@
 		86A28B542E6EFB5700C25AF1 = {
 			isa = PBXGroup;
 			children = (
+				B6A447872FF8C0B00009046A /* 451Clients.xcodeproj */,
+				B6A447842FF8C0AD0009046A /* 451Clients.xcodeproj */,
+				B687077B2FFAEA7B00025DF2 /* Common */,
 				86A28B5F2E6EFB5800C25AF1 /* thesis */,
 				A19F41962215402FB03562AC /* Signator/Signator */,
 				86A28B6D2E6EFB5B00C25AF1 /* wordsmatterTests */,
 				86A28B772E6EFB5B00C25AF1 /* wordsmatterUITests */,
 				8647FBCA2E71B8220052666E /* Frameworks */,
 				86A28B5E2E6EFB5800C25AF1 /* Products */,
-				B62191D52F68221400DB6B2F /* PlatformImage.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -182,6 +475,161 @@
 				86A28B6A2E6EFB5B00C25AF1 /* thesisTests.xctest */,
 				86A28B742E6EFB5B00C25AF1 /* thesisUITests.xctest */,
 			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B687073B2FFAEA7B00025DF2 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B68707392FFAEA7B00025DF2 /* AppRootScaffold.swift */,
+				B687073A2FFAEA7B00025DF2 /* ClientApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		B68707402FFAEA7B00025DF2 /* Infrastructure */ = {
+			isa = PBXGroup;
+			children = (
+				B687073C2FFAEA7B00025DF2 /* ClientLogger.swift */,
+				B687073D2FFAEA7B00025DF2 /* ServerConfig.swift */,
+				B687073E2FFAEA7B00025DF2 /* ServerConfiguration.swift */,
+				B687073F2FFAEA7B00025DF2 /* SharedContainer.swift */,
+			);
+			path = Infrastructure;
+			sourceTree = "<group>";
+		};
+		B687074F2FFAEA7B00025DF2 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B68707412FFAEA7B00025DF2 /* ConnectionModels.swift */,
+				B68707422FFAEA7B00025DF2 /* CredentialItem.swift */,
+				B68707432FFAEA7B00025DF2 /* Document451.swift */,
+				B68707442FFAEA7B00025DF2 /* MilestoneModels.swift */,
+				B68707452FFAEA7B00025DF2 /* Persona.swift */,
+				B68707462FFAEA7B00025DF2 /* PersonaProfile.swift */,
+				B68707472FFAEA7B00025DF2 /* PersonaPurpose.swift */,
+				B68707482FFAEA7B00025DF2 /* ProposedPersona.swift */,
+				B68707492FFAEA7B00025DF2 /* ServerProgressEvents.swift */,
+				B687074A2FFAEA7B00025DF2 /* SignatorUploadMetadata.swift */,
+				B687074B2FFAEA7B00025DF2 /* SignedDocumentPayload.swift */,
+				B687074C2FFAEA7B00025DF2 /* SignerSelection.swift */,
+				B687074D2FFAEA7B00025DF2 /* VerifiableCredential.swift */,
+				B687074E2FFAEA7B00025DF2 /* WalletAction.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		B68707512FFAEA7B00025DF2 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				B68707502FFAEA7B00025DF2 /* ConnectionManager.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		B68707552FFAEA7B00025DF2 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				B68707522FFAEA7B00025DF2 /* OnboardingFlowView.swift */,
+				B68707532FFAEA7B00025DF2 /* OnboardingModels.swift */,
+				B68707542FFAEA7B00025DF2 /* OnboardingVideoPlayer.swift */,
+				B68708602FFB154000025DF2 /* ActionDeckCard.swift */,
+				B68708652FFB155400025DF2 /* ActionCardDeck.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		B68707572FFAEA7B00025DF2 /* Persona */ = {
+			isa = PBXGroup;
+			children = (
+				B68707562FFAEA7B00025DF2 /* PersonaRequirement.swift */,
+			);
+			path = Persona;
+			sourceTree = "<group>";
+		};
+		B687075F2FFAEA7B00025DF2 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				B68707582FFAEA7B00025DF2 /* onboarding1.mov */,
+				B68707592FFAEA7B00025DF2 /* onboarding2.mov */,
+				B687075A2FFAEA7B00025DF2 /* onboarding3.mov */,
+				B687075B2FFAEA7B00025DF2 /* onboarding4.mov */,
+				B687075C2FFAEA7B00025DF2 /* onboarding5.mov */,
+				B687075D2FFAEA7B00025DF2 /* onboarding6.mov */,
+				B687075E2FFAEA7B00025DF2 /* onboarding7.mov */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		B68707602FFAEA7B00025DF2 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B687075F2FFAEA7B00025DF2 /* Onboarding */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		B68707722FFAEA7B00025DF2 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				B68707612FFAEA7B00025DF2 /* BlockchainAPI.swift */,
+				B68707622FFAEA7B00025DF2 /* CredentialVerificationService.swift */,
+				B68707632FFAEA7B00025DF2 /* DocumentMetadata451.swift */,
+				B68707642FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift */,
+				B68707652FFAEA7B00025DF2 /* DocumentSigningService.swift */,
+				B68707662FFAEA7B00025DF2 /* DocumentSubmissionService.swift */,
+				B68707672FFAEA7B00025DF2 /* EscrowService.swift */,
+				B68707682FFAEA7B00025DF2 /* MilestoneService.swift */,
+				B68707692FFAEA7B00025DF2 /* PersonaResolver.swift */,
+				B687076A2FFAEA7B00025DF2 /* PrivateKeyStore.swift */,
+				B687076B2FFAEA7B00025DF2 /* ProductionSSEClient.swift */,
+				B687076C2FFAEA7B00025DF2 /* ProposalVerificationService.swift */,
+				B687076D2FFAEA7B00025DF2 /* SecureEnclaveKeyStore.swift */,
+				B687076E2FFAEA7B00025DF2 /* ServerProgressMapper.swift */,
+				B687076F2FFAEA7B00025DF2 /* SignerService.swift */,
+				B68707702FFAEA7B00025DF2 /* SignerService+SecureEnclave.swift */,
+				B68707712FFAEA7B00025DF2 /* WalletAPI.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		B687077A2FFAEA7B00025DF2 /* Stores */ = {
+			isa = PBXGroup;
+			children = (
+				B68707732FFAEA7B00025DF2 /* CollaboratorsStore.swift */,
+				B68707742FFAEA7B00025DF2 /* InitiatedSigningStore.swift */,
+				B68707752FFAEA7B00025DF2 /* PersonaManager.swift */,
+				B68707762FFAEA7B00025DF2 /* PersonaStore.swift */,
+				B68707772FFAEA7B00025DF2 /* PrivateDataManager.swift */,
+				B68707782FFAEA7B00025DF2 /* PrivateDataStore.swift */,
+				B68707792FFAEA7B00025DF2 /* VCStore.swift */,
+			);
+			path = Stores;
+			sourceTree = "<group>";
+		};
+		B687077B2FFAEA7B00025DF2 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				B687073B2FFAEA7B00025DF2 /* App */,
+				B68707402FFAEA7B00025DF2 /* Infrastructure */,
+				B687074F2FFAEA7B00025DF2 /* Models */,
+				B68707512FFAEA7B00025DF2 /* Network */,
+				B68707552FFAEA7B00025DF2 /* Onboarding */,
+				B68707572FFAEA7B00025DF2 /* Persona */,
+				B68707602FFAEA7B00025DF2 /* Resources */,
+				B68707722FFAEA7B00025DF2 /* Services */,
+				B687077A2FFAEA7B00025DF2 /* Stores */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		B6A447852FF8C0AD0009046A /* Products */ = {
+			isa = PBXGroup;
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B6A447882FF8C0B00009046A /* Products */ = {
+			isa = PBXGroup;
 			name = Products;
 			sourceTree = "<group>";
 		};
@@ -229,7 +677,6 @@
 			name = thesis;
 			packageProductDependencies = (
 				B6BD6A232FC70BB100007593 /* RichTextKit */,
-				B6F041822FE0CEF400B53555 /* Core451 */,
 				B61BF44D2FEAF21600F58A8C /* BigInt */,
 			);
 			productName = wordsmatter;
@@ -316,12 +763,21 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				B67581A82FC70B1500104D92 /* XCRemoteSwiftPackageReference "RichTextKit" */,
-				B6F041812FE0CEDF00B53555 /* XCLocalSwiftPackageReference "451Core" */,
 				B61BF44C2FEAF21600F58A8C /* XCRemoteSwiftPackageReference "BigInt" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 86A28B5E2E6EFB5800C25AF1 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = B6A447882FF8C0B00009046A /* Products */;
+					ProjectRef = B6A447872FF8C0B00009046A /* 451Clients.xcodeproj */;
+				},
+				{
+					ProductGroup = B6A447852FF8C0AD0009046A /* Products */;
+					ProjectRef = B6A447842FF8C0AD0009046A /* 451Clients.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				86A28B5C2E6EFB5800C25AF1 /* thesis */,
@@ -337,6 +793,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B68707AD2FFAEA7B00025DF2 /* onboarding5.mov in Resources */,
+				B68707AE2FFAEA7B00025DF2 /* onboarding2.mov in Resources */,
+				B68707AF2FFAEA7B00025DF2 /* onboarding7.mov in Resources */,
+				B68707B02FFAEA7B00025DF2 /* onboarding1.mov in Resources */,
+				B68707B12FFAEA7B00025DF2 /* onboarding3.mov in Resources */,
+				B68707B22FFAEA7B00025DF2 /* onboarding6.mov in Resources */,
+				B68707B32FFAEA7B00025DF2 /* onboarding4.mov in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -344,6 +807,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B687081D2FFAEA7B00025DF2 /* onboarding5.mov in Resources */,
+				B687081E2FFAEA7B00025DF2 /* onboarding2.mov in Resources */,
+				B687081F2FFAEA7B00025DF2 /* onboarding7.mov in Resources */,
+				B68708202FFAEA7B00025DF2 /* onboarding1.mov in Resources */,
+				B68708212FFAEA7B00025DF2 /* onboarding3.mov in Resources */,
+				B68708222FFAEA7B00025DF2 /* onboarding6.mov in Resources */,
+				B68708232FFAEA7B00025DF2 /* onboarding4.mov in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -351,6 +821,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B68707E52FFAEA7B00025DF2 /* onboarding5.mov in Resources */,
+				B68707E62FFAEA7B00025DF2 /* onboarding2.mov in Resources */,
+				B68707E72FFAEA7B00025DF2 /* onboarding7.mov in Resources */,
+				B68707E82FFAEA7B00025DF2 /* onboarding1.mov in Resources */,
+				B68707E92FFAEA7B00025DF2 /* onboarding3.mov in Resources */,
+				B68707EA2FFAEA7B00025DF2 /* onboarding6.mov in Resources */,
+				B68707EB2FFAEA7B00025DF2 /* onboarding4.mov in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -358,6 +835,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B68708552FFAEA7B00025DF2 /* onboarding5.mov in Resources */,
+				B68708562FFAEA7B00025DF2 /* onboarding2.mov in Resources */,
+				B68708572FFAEA7B00025DF2 /* onboarding7.mov in Resources */,
+				B68708582FFAEA7B00025DF2 /* onboarding1.mov in Resources */,
+				B68708592FFAEA7B00025DF2 /* onboarding3.mov in Resources */,
+				B687085A2FFAEA7B00025DF2 /* onboarding6.mov in Resources */,
+				B687085B2FFAEA7B00025DF2 /* onboarding4.mov in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -368,6 +852,57 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B68708242FFAEA7B00025DF2 /* OnboardingFlowView.swift in Sources */,
+				B68708252FFAEA7B00025DF2 /* ConnectionModels.swift in Sources */,
+				B68708262FFAEA7B00025DF2 /* ClientLogger.swift in Sources */,
+				B68708272FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift in Sources */,
+				B68708282FFAEA7B00025DF2 /* DocumentMetadata451.swift in Sources */,
+				B68708292FFAEA7B00025DF2 /* Document451.swift in Sources */,
+				B687082A2FFAEA7B00025DF2 /* PrivateDataManager.swift in Sources */,
+				B687082B2FFAEA7B00025DF2 /* WalletAPI.swift in Sources */,
+				B687082C2FFAEA7B00025DF2 /* SignerSelection.swift in Sources */,
+				B687082D2FFAEA7B00025DF2 /* EscrowService.swift in Sources */,
+				B687082E2FFAEA7B00025DF2 /* WalletAction.swift in Sources */,
+				B687082F2FFAEA7B00025DF2 /* SignedDocumentPayload.swift in Sources */,
+				B68708302FFAEA7B00025DF2 /* PrivateDataStore.swift in Sources */,
+				B68708312FFAEA7B00025DF2 /* OnboardingModels.swift in Sources */,
+				B68708322FFAEA7B00025DF2 /* BlockchainAPI.swift in Sources */,
+				B68708332FFAEA7B00025DF2 /* PersonaRequirement.swift in Sources */,
+				B68708342FFAEA7B00025DF2 /* VCStore.swift in Sources */,
+				B68708352FFAEA7B00025DF2 /* AppRootScaffold.swift in Sources */,
+				B68708362FFAEA7B00025DF2 /* SignatorUploadMetadata.swift in Sources */,
+				B68708372FFAEA7B00025DF2 /* VerifiableCredential.swift in Sources */,
+				B68708382FFAEA7B00025DF2 /* ClientApp.swift in Sources */,
+				B68708392FFAEA7B00025DF2 /* ConnectionManager.swift in Sources */,
+				B687083A2FFAEA7B00025DF2 /* ServerConfiguration.swift in Sources */,
+				B687083B2FFAEA7B00025DF2 /* ProposalVerificationService.swift in Sources */,
+				B687083C2FFAEA7B00025DF2 /* MilestoneModels.swift in Sources */,
+				B687083D2FFAEA7B00025DF2 /* PrivateKeyStore.swift in Sources */,
+				B687083E2FFAEA7B00025DF2 /* SignerService.swift in Sources */,
+				B687083F2FFAEA7B00025DF2 /* PersonaResolver.swift in Sources */,
+				B68708402FFAEA7B00025DF2 /* PersonaStore.swift in Sources */,
+				B68708412FFAEA7B00025DF2 /* CollaboratorsStore.swift in Sources */,
+				B68708422FFAEA7B00025DF2 /* ServerConfig.swift in Sources */,
+				B68708432FFAEA7B00025DF2 /* InitiatedSigningStore.swift in Sources */,
+				B68708442FFAEA7B00025DF2 /* CredentialItem.swift in Sources */,
+				B68708452FFAEA7B00025DF2 /* ProductionSSEClient.swift in Sources */,
+				B68708462FFAEA7B00025DF2 /* PersonaManager.swift in Sources */,
+				B68708472FFAEA7B00025DF2 /* Persona.swift in Sources */,
+				B68708482FFAEA7B00025DF2 /* PersonaPurpose.swift in Sources */,
+				B68708492FFAEA7B00025DF2 /* OnboardingVideoPlayer.swift in Sources */,
+				B687084A2FFAEA7B00025DF2 /* ProposedPersona.swift in Sources */,
+				B687084B2FFAEA7B00025DF2 /* DocumentSubmissionService.swift in Sources */,
+				B687084C2FFAEA7B00025DF2 /* DocumentSigningService.swift in Sources */,
+				B687084D2FFAEA7B00025DF2 /* MilestoneService.swift in Sources */,
+				B687084E2FFAEA7B00025DF2 /* ServerProgressMapper.swift in Sources */,
+				B687084F2FFAEA7B00025DF2 /* SharedContainer.swift in Sources */,
+				B68708502FFAEA7B00025DF2 /* CredentialVerificationService.swift in Sources */,
+				B68708512FFAEA7B00025DF2 /* PersonaProfile.swift in Sources */,
+				B68708522FFAEA7B00025DF2 /* SecureEnclaveKeyStore.swift in Sources */,
+				B68708532FFAEA7B00025DF2 /* ServerProgressEvents.swift in Sources */,
+				B68708542FFAEA7B00025DF2 /* SignerService+SecureEnclave.swift in Sources */,
+				B68708682FFB155400025DF2 /* ActionCardDeck.swift in Sources */,
+				B68708612FFB154000025DF2 /* ActionDeckCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -376,6 +911,57 @@
 			buildActionMask = 2147483647;
 			files = (
 				B62191D62F68221400DB6B2F /* PlatformImage.swift in Sources */,
+				B68708672FFB155400025DF2 /* ActionCardDeck.swift in Sources */,
+				B687077C2FFAEA7B00025DF2 /* OnboardingFlowView.swift in Sources */,
+				B68708622FFB154000025DF2 /* ActionDeckCard.swift in Sources */,
+				B687077D2FFAEA7B00025DF2 /* ConnectionModels.swift in Sources */,
+				B687077E2FFAEA7B00025DF2 /* ClientLogger.swift in Sources */,
+				B687077F2FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift in Sources */,
+				B68707802FFAEA7B00025DF2 /* DocumentMetadata451.swift in Sources */,
+				B68707812FFAEA7B00025DF2 /* Document451.swift in Sources */,
+				B68707822FFAEA7B00025DF2 /* PrivateDataManager.swift in Sources */,
+				B68707832FFAEA7B00025DF2 /* WalletAPI.swift in Sources */,
+				B68707842FFAEA7B00025DF2 /* SignerSelection.swift in Sources */,
+				B68707852FFAEA7B00025DF2 /* EscrowService.swift in Sources */,
+				B68707862FFAEA7B00025DF2 /* WalletAction.swift in Sources */,
+				B68707872FFAEA7B00025DF2 /* SignedDocumentPayload.swift in Sources */,
+				B68707882FFAEA7B00025DF2 /* PrivateDataStore.swift in Sources */,
+				B68707892FFAEA7B00025DF2 /* OnboardingModels.swift in Sources */,
+				B687078A2FFAEA7B00025DF2 /* BlockchainAPI.swift in Sources */,
+				B687078B2FFAEA7B00025DF2 /* PersonaRequirement.swift in Sources */,
+				B687078C2FFAEA7B00025DF2 /* VCStore.swift in Sources */,
+				B687078D2FFAEA7B00025DF2 /* AppRootScaffold.swift in Sources */,
+				B687078E2FFAEA7B00025DF2 /* SignatorUploadMetadata.swift in Sources */,
+				B687078F2FFAEA7B00025DF2 /* VerifiableCredential.swift in Sources */,
+				B68707902FFAEA7B00025DF2 /* ClientApp.swift in Sources */,
+				B68707912FFAEA7B00025DF2 /* ConnectionManager.swift in Sources */,
+				B68707922FFAEA7B00025DF2 /* ServerConfiguration.swift in Sources */,
+				B68707932FFAEA7B00025DF2 /* ProposalVerificationService.swift in Sources */,
+				B68707942FFAEA7B00025DF2 /* MilestoneModels.swift in Sources */,
+				B68707952FFAEA7B00025DF2 /* PrivateKeyStore.swift in Sources */,
+				B68707962FFAEA7B00025DF2 /* SignerService.swift in Sources */,
+				B68707972FFAEA7B00025DF2 /* PersonaResolver.swift in Sources */,
+				B68707982FFAEA7B00025DF2 /* PersonaStore.swift in Sources */,
+				B68707992FFAEA7B00025DF2 /* CollaboratorsStore.swift in Sources */,
+				B687079A2FFAEA7B00025DF2 /* ServerConfig.swift in Sources */,
+				B687079B2FFAEA7B00025DF2 /* InitiatedSigningStore.swift in Sources */,
+				B687079C2FFAEA7B00025DF2 /* CredentialItem.swift in Sources */,
+				B687079D2FFAEA7B00025DF2 /* ProductionSSEClient.swift in Sources */,
+				B687079E2FFAEA7B00025DF2 /* PersonaManager.swift in Sources */,
+				B687079F2FFAEA7B00025DF2 /* Persona.swift in Sources */,
+				B68707A02FFAEA7B00025DF2 /* PersonaPurpose.swift in Sources */,
+				B68707A12FFAEA7B00025DF2 /* OnboardingVideoPlayer.swift in Sources */,
+				B68707A22FFAEA7B00025DF2 /* ProposedPersona.swift in Sources */,
+				B68707A32FFAEA7B00025DF2 /* DocumentSubmissionService.swift in Sources */,
+				B68707A42FFAEA7B00025DF2 /* DocumentSigningService.swift in Sources */,
+				B68707A52FFAEA7B00025DF2 /* MilestoneService.swift in Sources */,
+				B68707A62FFAEA7B00025DF2 /* ServerProgressMapper.swift in Sources */,
+				B68707A72FFAEA7B00025DF2 /* SharedContainer.swift in Sources */,
+				B68707A82FFAEA7B00025DF2 /* CredentialVerificationService.swift in Sources */,
+				B68707A92FFAEA7B00025DF2 /* PersonaProfile.swift in Sources */,
+				B68707AA2FFAEA7B00025DF2 /* SecureEnclaveKeyStore.swift in Sources */,
+				B68707AB2FFAEA7B00025DF2 /* ServerProgressEvents.swift in Sources */,
+				B68707AC2FFAEA7B00025DF2 /* SignerService+SecureEnclave.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -383,6 +969,57 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B68707EC2FFAEA7B00025DF2 /* OnboardingFlowView.swift in Sources */,
+				B68707ED2FFAEA7B00025DF2 /* ConnectionModels.swift in Sources */,
+				B68707EE2FFAEA7B00025DF2 /* ClientLogger.swift in Sources */,
+				B68707EF2FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift in Sources */,
+				B68707F02FFAEA7B00025DF2 /* DocumentMetadata451.swift in Sources */,
+				B68708642FFB154000025DF2 /* ActionDeckCard.swift in Sources */,
+				B68707F12FFAEA7B00025DF2 /* Document451.swift in Sources */,
+				B68707F22FFAEA7B00025DF2 /* PrivateDataManager.swift in Sources */,
+				B68707F32FFAEA7B00025DF2 /* WalletAPI.swift in Sources */,
+				B68707F42FFAEA7B00025DF2 /* SignerSelection.swift in Sources */,
+				B68707F52FFAEA7B00025DF2 /* EscrowService.swift in Sources */,
+				B68707F62FFAEA7B00025DF2 /* WalletAction.swift in Sources */,
+				B68707F72FFAEA7B00025DF2 /* SignedDocumentPayload.swift in Sources */,
+				B68707F82FFAEA7B00025DF2 /* PrivateDataStore.swift in Sources */,
+				B68707F92FFAEA7B00025DF2 /* OnboardingModels.swift in Sources */,
+				B68707FA2FFAEA7B00025DF2 /* BlockchainAPI.swift in Sources */,
+				B68707FB2FFAEA7B00025DF2 /* PersonaRequirement.swift in Sources */,
+				B68707FC2FFAEA7B00025DF2 /* VCStore.swift in Sources */,
+				B68707FD2FFAEA7B00025DF2 /* AppRootScaffold.swift in Sources */,
+				B68707FE2FFAEA7B00025DF2 /* SignatorUploadMetadata.swift in Sources */,
+				B68707FF2FFAEA7B00025DF2 /* VerifiableCredential.swift in Sources */,
+				B68708002FFAEA7B00025DF2 /* ClientApp.swift in Sources */,
+				B68708012FFAEA7B00025DF2 /* ConnectionManager.swift in Sources */,
+				B68708022FFAEA7B00025DF2 /* ServerConfiguration.swift in Sources */,
+				B68708032FFAEA7B00025DF2 /* ProposalVerificationService.swift in Sources */,
+				B68708042FFAEA7B00025DF2 /* MilestoneModels.swift in Sources */,
+				B68708052FFAEA7B00025DF2 /* PrivateKeyStore.swift in Sources */,
+				B68708062FFAEA7B00025DF2 /* SignerService.swift in Sources */,
+				B68708072FFAEA7B00025DF2 /* PersonaResolver.swift in Sources */,
+				B68708082FFAEA7B00025DF2 /* PersonaStore.swift in Sources */,
+				B68708092FFAEA7B00025DF2 /* CollaboratorsStore.swift in Sources */,
+				B687080A2FFAEA7B00025DF2 /* ServerConfig.swift in Sources */,
+				B687080B2FFAEA7B00025DF2 /* InitiatedSigningStore.swift in Sources */,
+				B687080C2FFAEA7B00025DF2 /* CredentialItem.swift in Sources */,
+				B687080D2FFAEA7B00025DF2 /* ProductionSSEClient.swift in Sources */,
+				B687080E2FFAEA7B00025DF2 /* PersonaManager.swift in Sources */,
+				B687080F2FFAEA7B00025DF2 /* Persona.swift in Sources */,
+				B68708102FFAEA7B00025DF2 /* PersonaPurpose.swift in Sources */,
+				B68708112FFAEA7B00025DF2 /* OnboardingVideoPlayer.swift in Sources */,
+				B68708122FFAEA7B00025DF2 /* ProposedPersona.swift in Sources */,
+				B68708132FFAEA7B00025DF2 /* DocumentSubmissionService.swift in Sources */,
+				B68708142FFAEA7B00025DF2 /* DocumentSigningService.swift in Sources */,
+				B68708152FFAEA7B00025DF2 /* MilestoneService.swift in Sources */,
+				B68708162FFAEA7B00025DF2 /* ServerProgressMapper.swift in Sources */,
+				B68708172FFAEA7B00025DF2 /* SharedContainer.swift in Sources */,
+				B68708182FFAEA7B00025DF2 /* CredentialVerificationService.swift in Sources */,
+				B68708192FFAEA7B00025DF2 /* PersonaProfile.swift in Sources */,
+				B687081A2FFAEA7B00025DF2 /* SecureEnclaveKeyStore.swift in Sources */,
+				B687081B2FFAEA7B00025DF2 /* ServerProgressEvents.swift in Sources */,
+				B687081C2FFAEA7B00025DF2 /* SignerService+SecureEnclave.swift in Sources */,
+				B68708662FFB155400025DF2 /* ActionCardDeck.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -390,6 +1027,57 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B68707B42FFAEA7B00025DF2 /* OnboardingFlowView.swift in Sources */,
+				B68707B52FFAEA7B00025DF2 /* ConnectionModels.swift in Sources */,
+				B68707B62FFAEA7B00025DF2 /* ClientLogger.swift in Sources */,
+				B68707B72FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift in Sources */,
+				B68707B82FFAEA7B00025DF2 /* DocumentMetadata451.swift in Sources */,
+				B68707B92FFAEA7B00025DF2 /* Document451.swift in Sources */,
+				B68707BA2FFAEA7B00025DF2 /* PrivateDataManager.swift in Sources */,
+				B68707BB2FFAEA7B00025DF2 /* WalletAPI.swift in Sources */,
+				B68707BC2FFAEA7B00025DF2 /* SignerSelection.swift in Sources */,
+				B68707BD2FFAEA7B00025DF2 /* EscrowService.swift in Sources */,
+				B68707BE2FFAEA7B00025DF2 /* WalletAction.swift in Sources */,
+				B68707BF2FFAEA7B00025DF2 /* SignedDocumentPayload.swift in Sources */,
+				B68707C02FFAEA7B00025DF2 /* PrivateDataStore.swift in Sources */,
+				B68707C12FFAEA7B00025DF2 /* OnboardingModels.swift in Sources */,
+				B68707C22FFAEA7B00025DF2 /* BlockchainAPI.swift in Sources */,
+				B68707C32FFAEA7B00025DF2 /* PersonaRequirement.swift in Sources */,
+				B68708692FFB155400025DF2 /* ActionCardDeck.swift in Sources */,
+				B68707C42FFAEA7B00025DF2 /* VCStore.swift in Sources */,
+				B68707C52FFAEA7B00025DF2 /* AppRootScaffold.swift in Sources */,
+				B68707C62FFAEA7B00025DF2 /* SignatorUploadMetadata.swift in Sources */,
+				B68707C72FFAEA7B00025DF2 /* VerifiableCredential.swift in Sources */,
+				B68707C82FFAEA7B00025DF2 /* ClientApp.swift in Sources */,
+				B68707C92FFAEA7B00025DF2 /* ConnectionManager.swift in Sources */,
+				B68707CA2FFAEA7B00025DF2 /* ServerConfiguration.swift in Sources */,
+				B68707CB2FFAEA7B00025DF2 /* ProposalVerificationService.swift in Sources */,
+				B68707CC2FFAEA7B00025DF2 /* MilestoneModels.swift in Sources */,
+				B68707CD2FFAEA7B00025DF2 /* PrivateKeyStore.swift in Sources */,
+				B68707CE2FFAEA7B00025DF2 /* SignerService.swift in Sources */,
+				B68707CF2FFAEA7B00025DF2 /* PersonaResolver.swift in Sources */,
+				B68707D02FFAEA7B00025DF2 /* PersonaStore.swift in Sources */,
+				B68707D12FFAEA7B00025DF2 /* CollaboratorsStore.swift in Sources */,
+				B68707D22FFAEA7B00025DF2 /* ServerConfig.swift in Sources */,
+				B68707D32FFAEA7B00025DF2 /* InitiatedSigningStore.swift in Sources */,
+				B68707D42FFAEA7B00025DF2 /* CredentialItem.swift in Sources */,
+				B68707D52FFAEA7B00025DF2 /* ProductionSSEClient.swift in Sources */,
+				B68707D62FFAEA7B00025DF2 /* PersonaManager.swift in Sources */,
+				B68707D72FFAEA7B00025DF2 /* Persona.swift in Sources */,
+				B68707D82FFAEA7B00025DF2 /* PersonaPurpose.swift in Sources */,
+				B68707D92FFAEA7B00025DF2 /* OnboardingVideoPlayer.swift in Sources */,
+				B68707DA2FFAEA7B00025DF2 /* ProposedPersona.swift in Sources */,
+				B68707DB2FFAEA7B00025DF2 /* DocumentSubmissionService.swift in Sources */,
+				B68707DC2FFAEA7B00025DF2 /* DocumentSigningService.swift in Sources */,
+				B68707DD2FFAEA7B00025DF2 /* MilestoneService.swift in Sources */,
+				B68707DE2FFAEA7B00025DF2 /* ServerProgressMapper.swift in Sources */,
+				B68707DF2FFAEA7B00025DF2 /* SharedContainer.swift in Sources */,
+				B68707E02FFAEA7B00025DF2 /* CredentialVerificationService.swift in Sources */,
+				B68708632FFB154000025DF2 /* ActionDeckCard.swift in Sources */,
+				B68707E12FFAEA7B00025DF2 /* PersonaProfile.swift in Sources */,
+				B68707E22FFAEA7B00025DF2 /* SecureEnclaveKeyStore.swift in Sources */,
+				B68707E32FFAEA7B00025DF2 /* ServerProgressEvents.swift in Sources */,
+				B68707E42FFAEA7B00025DF2 /* SignerService+SecureEnclave.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -851,13 +1539,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		B6F041812FE0CEDF00B53555 /* XCLocalSwiftPackageReference "451Core" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = 451Core;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
 		B61BF44C2FEAF21600F58A8C /* XCRemoteSwiftPackageReference "BigInt" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -887,11 +1568,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B67581A82FC70B1500104D92 /* XCRemoteSwiftPackageReference "RichTextKit" */;
 			productName = RichTextKit;
-		};
-		B6F041822FE0CEF400B53555 /* Core451 */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B6F041812FE0CEDF00B53555 /* XCLocalSwiftPackageReference "451Core" */;
-			productName = Core451;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
