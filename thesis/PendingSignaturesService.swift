@@ -3,7 +3,6 @@
 
 import Foundation
 import CryptoKit
-import Core451
 
 // MARK: - Pending Signatures API Models
 

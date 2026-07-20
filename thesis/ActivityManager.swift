@@ -1,6 +1,5 @@
 // ActivityManager.swift (App target)
 import Foundation
-import Core451
 #if canImport(ActivityKit) && !os(macOS)
 import ActivityKit
 #endif

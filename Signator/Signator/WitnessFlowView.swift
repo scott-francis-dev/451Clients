@@ -111,7 +111,7 @@ struct WitnessStatementView: View {
 #endif
         }
 #if os(iOS) || os(watchOS)
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .navigationBarHidden(true)
 #endif
     }
@@ -164,7 +164,7 @@ struct WitnessFlowView: View {
                         WitnessStatementView(title: "Objects Are Present")
                             .navigationTitle("Objects Present")
 #if canImport(UIKit)
-                            .navigationBarTitleDisplayMode(.inline)
+                            .inlineNavigationTitle()
 #endif
                             .padding()
                     }
@@ -178,7 +178,7 @@ struct WitnessFlowView: View {
                         WitnessStatementView(title: "Witnessed Events")
                             .navigationTitle("Witnessed Events")
 #if canImport(UIKit)
-                            .navigationBarTitleDisplayMode(.inline)
+                            .inlineNavigationTitle()
 #endif
                             .padding()
                     }
@@ -192,7 +192,7 @@ struct WitnessFlowView: View {
                         NotarizeDocumentWitnessView()
                             .navigationTitle("Notarize Document")
 #if canImport(UIKit)
-                            .navigationBarTitleDisplayMode(.inline)
+                            .inlineNavigationTitle()
 #endif
                             .padding()
                     }
@@ -206,7 +206,7 @@ struct WitnessFlowView: View {
                         OralAgreementWitnessView()
                             .navigationTitle("Oral Agreement")
 #if canImport(UIKit)
-                            .navigationBarTitleDisplayMode(.inline)
+                            .inlineNavigationTitle()
 #endif
                             .padding()
                     }
@@ -239,7 +239,7 @@ struct NotarizeDocumentWitnessView: View {
                 Section(header: Text("Document DID")) {
 #if canImport(UIKit)
                     TextField("did:example:abc123...", text: $documentDID)
-                        .textInputAutocapitalization(.never)
+                        .platformAutocapitalization(.never)
                         .autocorrectionDisabled(true)
 #else
                     TextField("did:example:abc123...", text: $documentDID)

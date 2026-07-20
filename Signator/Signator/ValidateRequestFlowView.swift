@@ -103,7 +103,7 @@ struct ValidateRequestFlowView: View {
                         }
                         .navigationTitle("Integrity Validation")
 #if canImport(UIKit)
-                        .navigationBarTitleDisplayMode(.inline)
+                        .inlineNavigationTitle()
 #endif
                         .toolbar {
                             ToolbarItem(placement: .cancellationAction) {
@@ -174,7 +174,7 @@ struct ValidateRequestFlowView: View {
                         }
                         .navigationTitle("Author Validation")
 #if canImport(UIKit)
-                        .navigationBarTitleDisplayMode(.inline)
+                        .inlineNavigationTitle()
 #endif
                         .toolbar {
                             ToolbarItem(placement: .cancellationAction) {
@@ -236,7 +236,7 @@ struct ValidateRequestFlowView: View {
                         }
                         .navigationTitle("ID Verification")
 #if canImport(UIKit)
-                        .navigationBarTitleDisplayMode(.inline)
+                        .inlineNavigationTitle()
 #endif
                         .toolbar {
                             ToolbarItem(placement: .cancellationAction) {

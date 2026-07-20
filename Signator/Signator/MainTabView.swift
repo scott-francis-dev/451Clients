@@ -112,7 +112,8 @@ enum DocumentSignatureService {
 struct MainTabView: View {
     @EnvironmentObject private var personaManager: PersonaManager
     @State private var showPersonaSheet = false
-    @State private var selectedTab: Int = 0
+    // Open on Create by default — the "To Sign" feed is often empty.
+    @State private var selectedTab: Int = 1
     @State private var incomingProposedPersonaToken: String? = nil
     
     var body: some View {
@@ -122,37 +123,34 @@ struct MainTabView: View {
         let personaPublicKey = persona?.publicKeyBase64 ?? ""
         
         TabView(selection: $selectedTab) {
-            // Sign Tab
+            // To Sign — the sign feed (things addressed to you). App opens here
+            // when it has items; otherwise it opens on Create.
             NavigationStack {
                 SignRequestsView(personaManager: personaManager, showPersonaSheet: $showPersonaSheet)
             }
             .tabItem {
-                Label("Dashboard", systemImage: "gauge")
+                Label("To Sign", systemImage: "tray.and.arrow.down.fill")
             }
             .tag(0)
-            
-            // Contacts Tab
-            NavigationStack {
-                ContactsView(personaManager: personaManager, showPersonaSheet: $showPersonaSheet)
-            }
+
+            // Create — swipeable action-card deck (shared Common component)
+            SignatorCreateDeckView(personaManager: personaManager)
             .tabItem {
-                Label("Friends/Colleagues", systemImage: "person.2")
+                Label("Create", systemImage: "plus.rectangle.on.rectangle")
             }
             .tag(1)
-            
-            // Personas Tab
-            NavigationStack {
-                PersonasTabView(personaManager: personaManager, showPersonaSheet: $showPersonaSheet)
-            }
+
+            // People — Friends/Colleagues and Personas combined into one tab
+            PeopleTabView(personaManager: personaManager, showPersonaSheet: $showPersonaSheet)
             .tabItem {
-                Label("Personas", systemImage: "person.2.fill")
+                Label("People", systemImage: "person.2.fill")
             }
             .tag(2)
         }
         .onChange(of: personaManager.personas.count) { oldCount, newCount in
-            // First persona just created — land on the Personas tab
+            // First persona just created — surface the People tab.
             if oldCount == 0 && newCount == 1 {
-                selectedTab = 3
+                selectedTab = 2
             }
         }
         .sheet(isPresented: $showPersonaSheet) {
@@ -177,6 +175,43 @@ struct MainTabView: View {
                   let tokenValue = components.queryItems?.first(where: { (item: URLQueryItem) in item.name == "token" })?.value,
                   !tokenValue.isEmpty else { return }
             incomingProposedPersonaToken = tokenValue
+        }
+    }
+}
+
+// MARK: - People Tab (Contacts + Personas combined)
+
+/// Combines Friends/Colleagues (contacts) and Personas into a single tab, toggled
+/// by a segmented control, so the tab bar stays lean.
+struct PeopleTabView: View {
+    @ObservedObject var personaManager: PersonaManager
+    @Binding var showPersonaSheet: Bool
+
+    enum Segment: String, CaseIterable, Identifiable {
+        case contacts = "Friends"
+        case personas = "Personas"
+        var id: String { rawValue }
+    }
+    @State private var segment: Segment = .contacts
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                Picker("People", selection: $segment) {
+                    ForEach(Segment.allCases) { Text($0.rawValue).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+                .padding(.top, 8)
+                .padding(.bottom, 4)
+
+                switch segment {
+                case .contacts:
+                    ContactsView(personaManager: personaManager, showPersonaSheet: $showPersonaSheet)
+                case .personas:
+                    PersonasTabView(personaManager: personaManager, showPersonaSheet: $showPersonaSheet)
+                }
+            }
         }
     }
 }
@@ -404,9 +439,9 @@ struct SignRequestsView: View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Signator Dashboard")
+                    Text("For You")
                         .font(.title3).bold()
-                    Text("Pending items and quick actions in one place")
+                    Text("Things addressed to you, ready to sign")
                         .font(.footnote)
                         .foregroundColor(.secondary)
                 }
@@ -516,9 +551,9 @@ struct SignRequestsView: View {
     private var dashboardAndListView: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                // Quick actions now live in the Create tab; this tab is just
+                // the "Ready for you to sign" container and its list.
                 pendingSummaryCard
-                quickActionsCard
-                activityCard
 
                 if !requests.isEmpty {
                     VStack(alignment: .leading, spacing: 12) {
@@ -593,157 +628,6 @@ struct SignRequestsView: View {
         )
     }
 
-    private var quickActionsCard: some View {
-        let quickActions: [QuickActionItem] = [
-            QuickActionItem(
-                title: "Sign in with Signator",
-                subtitle: "Authenticate to any Signator-enabled service",
-                systemImage: "person.badge.shield.checkmark.fill",
-                imageName: "DigitalLock",
-                destination: .signatorSignIn
-            ),
-            QuickActionItem(
-                title: "Request Institution Access",
-                subtitle: "Apply for a role credential at a healthcare institution",
-                systemImage: "building.2.crop.circle.fill",
-                imageName: nil,
-                destination: .requestInstitutionAccess
-            ),
-            QuickActionItem(
-                title: "Sign a Document",
-                subtitle: "Send a document for signatures",
-                systemImage: "doc.text",
-                imageName: "SignDocument",
-                destination: .signDocument
-            ),
-            QuickActionItem(
-                title: "Capture Witness Video",
-                subtitle: "Record a witness statement for the record",
-                systemImage: "video.fill",
-                imageName: "Protest2",
-                destination: .captureWitnessVideo
-            ),
-            QuickActionItem(
-                title: "Document Presence of Machinery or Real Property",
-                subtitle: "Capture evidence of on-site assets",
-                systemImage: "building.2",
-                imageName: "machine",
-                destination: .placeholder("Document Presence of Machinery or Real Property")
-            ),
-            QuickActionItem(
-                title: "Acknowledge Receipt of Valuable",
-                subtitle: "Confirm receipt of high-value items",
-                systemImage: "shippingbox.fill",
-                imageName: "Diamonds",
-                destination: .placeholder("Acknowledge Receipt of Valuable")
-            ),
-            QuickActionItem(
-                title: "Sign and Submit Credentials",
-                subtitle: "Submit verified professional credentials",
-                systemImage: "doc.badge.gearshape",
-                imageName: "Diploma",
-                destination: .placeholder("Sign and Submit Credentials")
-            ),
-            QuickActionItem(
-                title: "Sign Consent / Assent Form",
-                subtitle: "Collect consent and assent signatures",
-                systemImage: "checklist",
-                imageName: "Consent",
-                destination: .placeholder("Sign Consent / Assent Form")
-            ),
-            QuickActionItem(
-                title: "Acknowledge Receipt of Medical Records",
-                subtitle: "Confirm medical record delivery",
-                systemImage: "heart.text.square",
-                imageName: "Xray",
-                destination: .placeholder("Acknowledge Receipt of Medical Records")
-            ),
-            QuickActionItem(
-                title: "Notarize a Document",
-                subtitle: "Record and notarize a verifiable event",
-                systemImage: "checkmark.seal",
-                imageName: "Notary",
-                destination: .notarizeEvent
-            ),
-            QuickActionItem(
-                title: "Acknowledge that an Event Occurred",
-                subtitle: "Create a verified event record",
-                systemImage: "calendar.badge.checkmark",
-                imageName: "Acknowledge",
-                destination: .placeholder("Acknowledge that an Event Occurred")
-            ),
-            QuickActionItem(
-                title: "Validate a Human Signed a Document",
-                subtitle: "Confirm the signer and signature",
-                systemImage: "person.text.rectangle",
-                imageName: "DocumentSign",
-                destination: .placeholder("Validate a Human Signed a Document")
-            ),
-            QuickActionItem(
-                title: "Validate that a Person Appeared at a Time and Location",
-                subtitle: "Capture presence with time and place",
-                systemImage: "location.fill",
-                imageName: "PeopleTalking",
-                destination: .placeholder("Validate that a Person Appeared at a Time and Location")
-            ),
-            QuickActionItem(
-                title: "Sign a Completion of Milestones",
-                subtitle: "Certify milestones are complete",
-                systemImage: "flag.checkered",
-                imageName: "Milestone",
-                destination: .placeholder("Sign a Completion of Milestones")
-            ),
-            QuickActionItem(
-                title: "Sign a Milestone as an Independent Third Party",
-                subtitle: "Provide third-party milestone validation",
-                systemImage: "person.2.badge.checkmark",
-                imageName: "ThirdPartyValidation",
-                destination: .placeholder("Sign a Milestone as an Independent Third Party")
-            ),
-            QuickActionItem(
-                title: "Validate Credentials of Professional",
-                subtitle: "Third-party credential validation",
-                systemImage: "person.crop.circle.badge.checkmark",
-                imageName: "ValidateCredentials",
-                destination: .placeholder("Validate Credentials of Professional")
-            ),
-            QuickActionItem(
-                title: "Start from a Template",
-                subtitle: "Build from a reusable template",
-                systemImage: "square.grid.2x2",
-                imageName: "Templates",
-                destination: .template
-            )
-        ]
-
-        return VStack(alignment: .leading, spacing: 12) {
-            Label("Quick Actions", systemImage: "bolt.fill")
-                .font(.headline)
-                .foregroundColor(.primary)
-
-            VStack(spacing: 0) {
-                ForEach(quickActions) { item in
-                    quickActionListRow(for: item)
-
-                    if item.id != quickActions.last?.id {
-                        Divider()
-                    }
-                }
-            }
-            .background(Color.platformSecondaryGroupedBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color.platformGroupedBackground)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color.gray.opacity(0.15), lineWidth: 1)
-        )
-    }
-
     private var activityCard: some View {
         let signedCount = requests.filter { $0.status != .pending }.count
         return VStack(alignment: .leading, spacing: 10) {
@@ -764,129 +648,6 @@ struct SignRequestsView: View {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(Color.gray.opacity(0.15), lineWidth: 1)
         )
-    }
-
-    private enum QuickActionDestination {
-        case signatorSignIn
-        case requestInstitutionAccess
-        case signDocument
-        case template
-        case notarizeEvent
-        case captureWitnessVideo
-        case placeholder(String)
-    }
-
-    private struct QuickActionItem: Identifiable {
-        let id = UUID()
-        let title: String
-        let subtitle: String
-        let systemImage: String
-        let imageName: String?
-        let destination: QuickActionDestination
-    }
-
-    @ViewBuilder
-    private func quickActionDestination(for item: QuickActionItem) -> some View {
-        switch item.destination {
-        case .signatorSignIn:
-            SignatorSignInInitiatorView()
-                .environmentObject(personaManager)
-        case .requestInstitutionAccess:
-            RequestInstitutionAccessView()
-                .environmentObject(personaManager)
-        case .signDocument:
-            SendSigningFlowView(personaManager: personaManager)
-        case .template:
-            TemplateSelectionFlowView(personaManager: personaManager)
-        case .notarizeEvent:
-            NotarizeEventFlowView(personaManager: personaManager)
-        case .captureWitnessVideo:
-            QuickActionMediaCaptureView(title: "Capture Witness Video")
-        case .placeholder(let title):
-            QuickActionPlaceholderView(title: title)
-        }
-    }
-
-    private func quickActionListRow(for item: QuickActionItem) -> some View {
-        NavigationLink {
-            quickActionDestination(for: item)
-        } label: {
-            HStack(spacing: 12) {
-                quickActionThumbnail(for: item)
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(item.title)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.primary)
-                    Text(item.subtitle)
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                }
-
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
-            .frame(minHeight: 147)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func quickActionThumbnail(for item: QuickActionItem) -> some View {
-        ZStack {
-            if let imageName = item.imageName, let image = loadImage(named: imageName) {
-                Image(platformImage: image)
-                    .resizable()
-                    .scaledToFill()
-            } else {
-                Image(systemName: item.systemImage)
-                    .foregroundColor(.blue)
-                    .font(.system(size: 22, weight: .semibold))
-            }
-        }
-        .frame(width: 75, height: 132)
-        .background(Color.blue.opacity(0.12))
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .stroke(Color.blue.opacity(0.15), lineWidth: 1)
-        )
-    }
-
-    private func loadImage(named name: String) -> PlatformImage? {
-        return PlatformImage.named(name)
-    }
-
-    private struct QuickActionPlaceholderView: View {
-        let title: String
-
-        var body: some View {
-            VStack(spacing: 16) {
-                Image(systemName: "sparkles")
-                    .font(.system(size: 36, weight: .semibold))
-                    .foregroundColor(.secondary)
-
-                Text(title)
-                    .font(.title3)
-                    .fontWeight(.semibold)
-
-                Text("This workflow is being prepared. We'll add the full experience soon.")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-
-                Spacer()
-            }
-            .padding(24)
-            .navigationTitle(title)
-            .inlineNavigationTitle()
-        }
     }
 
     @ViewBuilder

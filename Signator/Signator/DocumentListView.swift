@@ -734,7 +734,7 @@ struct GlassCardView<Content: View>: View {
             // Background: Liquid Glass on supported OS, fallback material otherwise
             .background(
                 Group {
-                    if #available(iOS 26.0, macOS 15.0, tvOS 18.0, watchOS 11.0, *) {
+                    if #available(iOS 26.0, macOS 26.0, tvOS 26.0, watchOS 26.0, *) {
                         RoundedRectangle(
                             cornerRadius: 16,
                             style: .continuous

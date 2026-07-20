@@ -1,6 +1,5 @@
 import Foundation
 import Observation
-import Core451
 
 @Observable
 class Book: Codable, Identifiable, Equatable, Hashable {

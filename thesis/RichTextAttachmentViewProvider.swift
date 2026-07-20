@@ -1,5 +1,4 @@
 import Foundation
-import Core451
 
 // Helper keys for attachment userInfo so the codec and editor agree.
 enum AttachmentUserInfoKeys {

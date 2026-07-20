@@ -2,6 +2,7 @@
 // Local storage for PersonaProfile
 
 import Foundation
+import Combine
 import os
 
 public final class PersonaStore: ObservableObject {

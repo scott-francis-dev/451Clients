@@ -1,6 +1,5 @@
 // PraiseAttributes.swift (Shared for App + Widget Extension)
 import Foundation
-import Core451
 
 #if canImport(ActivityKit) && !os(macOS)
 import ActivityKit

@@ -36,8 +36,8 @@ public struct OnboardingVideoPlayer: View {
 
     private func setupPlayer() {
         guard player == nil,
-              let url = Bundle.module.url(forResource: videoName, withExtension: "mov", subdirectory: "Onboarding")
-                ?? Bundle.module.url(forResource: videoName, withExtension: "mov")
+              let url = Bundle.main.url(forResource: videoName, withExtension: "mov", subdirectory: "Onboarding")
+                ?? Bundle.main.url(forResource: videoName, withExtension: "mov")
         else { return }
 
         let newPlayer = AVPlayer(url: url)

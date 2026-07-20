@@ -6,7 +6,6 @@
 
 import SwiftUI
 import CryptoKit
-import Core451
 
 #if canImport(UIKit)
 import UIKit

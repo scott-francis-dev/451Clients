@@ -55,7 +55,7 @@ struct AccessCodeEntryView: View {
                                 .font(.system(.title3, design: .monospaced))
                                 .textCase(.uppercase)
                                 .platformKeyboardType(.numberPad)
-                                .autocapitalization(.allCharacters)
+                                .platformAutocapitalization(.characters)
                                 .disableAutocorrection(true)
                                 .onChange(of: accessCode) { _, newValue in
                                     // Format as XXX-XXXX

@@ -1,5 +1,4 @@
 import Foundation
-import Core451
 #if canImport(NaturalLanguage)
 import NaturalLanguage
 #endif

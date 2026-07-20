@@ -1,6 +1,5 @@
 import SwiftUI
 import RichTextKit
-import Core451
 
 #if os(macOS)
 import AppKit

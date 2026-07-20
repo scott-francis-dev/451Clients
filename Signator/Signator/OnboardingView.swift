@@ -9,9 +9,12 @@
 
 import SwiftUI
 import AVKit
+#if canImport(AppKit)
+import AppKit
+#endif
 
 /// Individual onboarding page with video and text content
-struct OnboardingPage: Identifiable {
+struct SignatorOnboardingPage: Identifiable {
     let id: Int
     let videoName: String
     let title: String
@@ -24,49 +27,48 @@ struct OnboardingView: View {
     @State private var currentPage = 0
     @Environment(\.dismiss) private var dismiss
     
-    // Haptic feedback generator
-    private let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-    private let notificationFeedback = UINotificationFeedbackGenerator()
+    // Cross-platform haptic feedback (no-ops on platforms without a Taptic Engine)
+    private let haptics = PlatformHaptics()
     
     // Onboarding content - customize these based on your videos and messaging
-    private let pages: [OnboardingPage] = [
-        OnboardingPage(
+    private let pages: [SignatorOnboardingPage] = [
+        SignatorOnboardingPage(
             id: 0,
             videoName: "onboarding1", // Just the filename without extension
             title: "Welcome to Signator",
             description: "Your secure digital identity and document signing solution powered by the 451 Protocol."
         ),
-        OnboardingPage(
+        SignatorOnboardingPage(
             id: 1,
             videoName: "onboarding2",
             title: "Create Your Persona",
             description: "Build your decentralized identity with cryptographic security backed by your device's Secure Enclave."
         ),
-        OnboardingPage(
+        SignatorOnboardingPage(
             id: 2,
             videoName: "onboarding3",
             title: "Sign Documents Securely",
             description: "Sign and verify documents with cryptographic signatures that prove authenticity and integrity."
         ),
-        OnboardingPage(
+        SignatorOnboardingPage(
             id: 3,
             videoName: "onboarding4",
             title: "Timestamped Witness Data",
             description: "Capture and archive sensitive events with timestamps and verifying info."
         ),
-        OnboardingPage(
+        SignatorOnboardingPage(
             id: 4,
             videoName: "onboarding5",
             title: "Transfer of Medical Records",
             description: "Provide approval for the secure transfer of medical records from provider to provider."
         ),
-        OnboardingPage(
+        SignatorOnboardingPage(
             id: 5,
             videoName: "onboarding6",
             title: "Consent for activities & sports",
             description: "Remove messy paper consent forms and let Signator handle all the legalese."
         ),
-        OnboardingPage(
+        SignatorOnboardingPage(
             id: 6,
             videoName: "onboarding7",
             title: "Signator is Built for Documenting Trust",
@@ -79,15 +81,14 @@ struct OnboardingView: View {
             // Paged content with swipe gesture (full screen)
             TabView(selection: $currentPage) {
                 ForEach(pages) { page in
-                    OnboardingPageView(page: page)
+                    SignatorOnboardingPageView(page: page)
                         .tag(page.id)
                 }
             }
-            .tabViewStyle(.page(indexDisplayMode: .always))
-            .indexViewStyle(.page(backgroundDisplayMode: .always))
+            .platformPagedTabViewStyle()
             .onChange(of: currentPage) { oldValue, newValue in
                 // Provide haptic feedback when swiping between pages
-                impactFeedback.impactOccurred()
+                haptics.impact(.light)
             }
             .ignoresSafeArea()
             
@@ -130,7 +131,7 @@ struct OnboardingView: View {
                     } else {
                         // Get Started button on last page
                         Button(action: {
-                            notificationFeedback.notificationOccurred(.success)
+                            haptics.notify(.success)
                             completeOnboarding()
                         }) {
                             Text("Get Started")
@@ -157,8 +158,8 @@ struct OnboardingView: View {
 }
 
 /// Individual page view with video player and text
-struct OnboardingPageView: View {
-    let page: OnboardingPage
+struct SignatorOnboardingPageView: View {
+    let page: SignatorOnboardingPage
     @State private var player: AVPlayer?
     @State private var observer: NSObjectProtocol?
     
@@ -279,10 +280,12 @@ struct OnboardingPageView: View {
 
 // MARK: - Full Screen Video Player
 
-/// Custom video player view that fills the entire screen
+/// Custom video player view that fills the entire screen.
+/// Backed by `AVPlayerViewController` on iOS/visionOS and `AVPlayerView` on macOS.
+#if canImport(UIKit)
 struct FullScreenVideoPlayer: UIViewControllerRepresentable {
     let player: AVPlayer
-    
+
     func makeUIViewController(context: Context) -> AVPlayerViewController {
         let controller = AVPlayerViewController()
         controller.player = player
@@ -291,11 +294,30 @@ struct FullScreenVideoPlayer: UIViewControllerRepresentable {
         controller.view.backgroundColor = .black
         return controller
     }
-    
+
     func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
         // No updates needed
     }
 }
+#elseif canImport(AppKit)
+struct FullScreenVideoPlayer: NSViewRepresentable {
+    let player: AVPlayer
+
+    func makeNSView(context: Context) -> AVPlayerView {
+        let view = AVPlayerView()
+        view.player = player
+        view.controlsStyle = .none
+        view.videoGravity = .resizeAspectFill
+        view.wantsLayer = true
+        view.layer?.backgroundColor = NSColor.black.cgColor
+        return view
+    }
+
+    func updateNSView(_ nsView: AVPlayerView, context: Context) {
+        // No updates needed
+    }
+}
+#endif
 
 // MARK: - Instructions View (Reusable for viewing later)
 
@@ -305,48 +327,48 @@ struct InstructionsView: View {
     @State private var currentPage = 0
     @Environment(\.dismiss) private var dismiss
     
-    // Haptic feedback generator
-    private let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-    
+    // Cross-platform haptic feedback (no-ops on platforms without a Taptic Engine)
+    private let haptics = PlatformHaptics()
+
     // Same content as onboarding
-    private let pages: [OnboardingPage] = [
-        OnboardingPage(
+    private let pages: [SignatorOnboardingPage] = [
+        SignatorOnboardingPage(
             id: 0,
             videoName: "onboarding1",
             title: "Welcome to Signator",
             description: "Your secure digital identity and document signing solution powered by the 451 Protocol."
         ),
-        OnboardingPage(
+        SignatorOnboardingPage(
             id: 1,
             videoName: "onboarding2",
             title: "Create Your Persona",
             description: "Build your decentralized identity with cryptographic security backed by your device's Secure Enclave."
         ),
-        OnboardingPage(
+        SignatorOnboardingPage(
             id: 2,
             videoName: "onboarding3",
             title: "Sign Documents Securely",
             description: "Sign and verify documents with cryptographic signatures that prove authenticity and integrity."
         ),
-        OnboardingPage(
+        SignatorOnboardingPage(
             id: 3,
             videoName: "onboarding4",
             title: "Timestamped Witness Data",
             description: "Capture and archive sensitive events with timestamps and verifying info."
         ),
-        OnboardingPage(
+        SignatorOnboardingPage(
             id: 4,
             videoName: "onboarding5",
             title: "Transfer of Medical Records",
             description: "Provide approval for the secure transfer of medical records from provider to provider."
         ),
-        OnboardingPage(
+        SignatorOnboardingPage(
             id: 5,
             videoName: "onboarding6",
             title: "Consent for activities & sports",
             description: "Remove messy paper consent forms and let Signator handle all the legalese."
         ),
-        OnboardingPage(
+        SignatorOnboardingPage(
             id: 6,
             videoName: "onboarding7",
             title: "Signator is Built for Documenting Trust",
@@ -359,15 +381,14 @@ struct InstructionsView: View {
             // Paged content with swipe gesture
             TabView(selection: $currentPage) {
                 ForEach(pages) { page in
-                    OnboardingPageView(page: page)
+                    SignatorOnboardingPageView(page: page)
                         .tag(page.id)
                 }
             }
-            .tabViewStyle(.page(indexDisplayMode: .always))
-            .indexViewStyle(.page(backgroundDisplayMode: .always))
+            .platformPagedTabViewStyle()
             .onChange(of: currentPage) { oldValue, newValue in
                 // Provide haptic feedback when swiping between pages
-                impactFeedback.impactOccurred()
+                haptics.impact(.light)
             }
             
             // Bottom action area
@@ -381,7 +402,7 @@ struct InstructionsView: View {
                 // Next button
                 if currentPage < pages.count - 1 {
                     Button(action: {
-                        impactFeedback.impactOccurred()
+                        haptics.impact(.light)
                         withAnimation(.easeInOut) {
                             currentPage += 1
                         }
@@ -400,7 +421,25 @@ struct InstructionsView: View {
             }
         }
         .navigationTitle("How Signator Works")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
+    }
+}
+
+// MARK: - Paged TabView style
+
+fileprivate extension View {
+    /// Applies the swipeable paged `TabView` style (with page-dot indicators) on platforms
+    /// that support it. `PageTabViewStyle` is unavailable on macOS, so this is a no-op there
+    /// and the `TabView` falls back to its default (clickable tab) style.
+    @ViewBuilder
+    func platformPagedTabViewStyle() -> some View {
+#if os(iOS) || os(visionOS)
+        self
+            .tabViewStyle(.page(indexDisplayMode: .always))
+            .indexViewStyle(.page(backgroundDisplayMode: .always))
+#else
+        self
+#endif
     }
 }
 

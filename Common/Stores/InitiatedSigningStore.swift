@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 public struct InitiatedSigningRecord: Codable {
     public let id: String

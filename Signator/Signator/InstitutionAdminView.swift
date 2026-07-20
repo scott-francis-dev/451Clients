@@ -73,7 +73,7 @@ struct InstitutionAdminView: View {
         .navigationTitle("Institution Admin")
         .inlineNavigationTitle()
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .primaryAction) {
                 Button {
                     Task { await loadRequests() }
                 } label: {
@@ -290,7 +290,7 @@ private struct GrantAccessSheet: View {
             .navigationTitle("Grant Access")
             .inlineNavigationTitle()
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { onDone(false) }
                 }
             }

@@ -1,6 +1,5 @@
 import SwiftUI
 import CryptoKit
-import Core451
 
 extension BlockchainBlock {
     var title: String {

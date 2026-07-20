@@ -78,7 +78,7 @@ struct OnboardingDebugView: View {
 extension View {
     func withOnboardingDebugButton() -> some View {
         self.toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .primaryAction) {
                 Button {
                     // Present OnboardingDebugView
                 } label: {

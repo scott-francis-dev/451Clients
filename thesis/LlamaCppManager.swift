@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Core451
 
 /// Manager for running TinyLlama using llama.cpp (best option for iOS)
 /// This requires the llama.cpp Swift package

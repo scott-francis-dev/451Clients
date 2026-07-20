@@ -1,4 +1,4 @@
-  import SwiftUI
+import SwiftUI
 import CoreLocation
 import AVFoundation
 #if canImport(UIKit)
@@ -234,7 +234,7 @@ struct QuickActionMediaCaptureView: View {
     private func mediaThumbnail(for item: CapturedMedia) -> some View {
         ZStack {
             if let image = item.image {
-                Image(uiImage: image)
+                Image(platformImage: image)
                     .resizable()
                     .scaledToFill()
             } else if item.type == .video {
@@ -251,7 +251,7 @@ struct QuickActionMediaCaptureView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
-    private func appendPhotos(_ newPhotos: [UIImage]) {
+    private func appendPhotos(_ newPhotos: [PlatformImage]) {
         guard !newPhotos.isEmpty else { return }
         let timestamp = fileTimestamp()
         for (index, image) in newPhotos.enumerated() {
@@ -398,7 +398,7 @@ enum CapturedMediaType: String, Codable {
 struct CapturedMedia: Identifiable {
     let id = UUID()
     let type: CapturedMediaType
-    let image: UIImage?
+    let image: PlatformImage?
     let videoURL: URL?
     let filename: String
     let metadata: CaptureMediaMetadata
@@ -447,16 +447,23 @@ final class LocationProvider: NSObject, ObservableObject, CLLocationManagerDeleg
         let status = manager.authorizationStatus
         if status == .notDetermined {
             manager.requestWhenInUseAuthorization()
-        } else if status == .authorizedWhenInUse || status == .authorizedAlways {
+        } else if isAuthorized(status) {
             manager.startUpdatingLocation()
         }
     }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        let status = manager.authorizationStatus
-        if status == .authorizedWhenInUse || status == .authorizedAlways {
+        if isAuthorized(manager.authorizationStatus) {
             manager.startUpdatingLocation()
         }
+    }
+
+    private func isAuthorized(_ status: CLAuthorizationStatus) -> Bool {
+        #if os(macOS)
+        return status == .authorizedAlways
+        #else
+        return status == .authorizedWhenInUse || status == .authorizedAlways
+        #endif
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -493,7 +500,7 @@ final class CameraSessionManager: NSObject, ObservableObject {
         }
     }
 
-    func capturePhoto(completion: @escaping (UIImage?) -> Void) {
+    func capturePhoto(completion: @escaping (PlatformImage?) -> Void) {
         sessionQueue.async {
             self.configureIfNeeded()
             let settings = AVCapturePhotoSettings()
@@ -577,6 +584,7 @@ final class CameraSessionManager: NSObject, ObservableObject {
     }
 
     private func configureAudioSession() {
+        #if os(iOS)
         let session = AVAudioSession.sharedInstance()
         do {
             try session.setCategory(.playAndRecord, mode: .videoRecording, options: [.defaultToSpeaker])
@@ -584,6 +592,7 @@ final class CameraSessionManager: NSObject, ObservableObject {
         } catch {
             // Ignore audio session errors; video can still record silently.
         }
+        #endif
     }
 
     private func stopTimer() {
@@ -617,14 +626,14 @@ extension CameraSessionManager: AVCaptureFileOutputRecordingDelegate {
 }
 
 final class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
-    private let completion: (UIImage?) -> Void
+    private let completion: (PlatformImage?) -> Void
 
-    init(completion: @escaping (UIImage?) -> Void) {
+    init(completion: @escaping (PlatformImage?) -> Void) {
         self.completion = completion
     }
 
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        guard error == nil, let data = photo.fileDataRepresentation(), let image = UIImage(data: data) else {
+        guard error == nil, let data = photo.fileDataRepresentation(), let image = PlatformImage(data: data) else {
             completion(nil)
             return
         }
@@ -632,6 +641,7 @@ final class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     }
 }
 
+#if canImport(UIKit)
 struct CameraPreviewView: UIViewRepresentable {
     let session: AVCaptureSession
 
@@ -654,3 +664,32 @@ final class PreviewView: UIView {
         layer as? AVCaptureVideoPreviewLayer ?? AVCaptureVideoPreviewLayer()
     }
 }
+#elseif canImport(AppKit)
+struct CameraPreviewView: NSViewRepresentable {
+    let session: AVCaptureSession
+
+    func makeNSView(context: Context) -> PreviewView {
+        let view = PreviewView()
+        view.videoPreviewLayer.session = session
+        view.videoPreviewLayer.videoGravity = .resizeAspectFill
+        return view
+    }
+
+    func updateNSView(_ nsView: PreviewView, context: Context) {}
+}
+
+final class PreviewView: NSView {
+    let videoPreviewLayer = AVCaptureVideoPreviewLayer()
+
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        wantsLayer = true
+        layer = videoPreviewLayer
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+#endif

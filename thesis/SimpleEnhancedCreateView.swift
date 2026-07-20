@@ -7,7 +7,6 @@
 
 import SwiftUI
 import RichTextKit
-import Core451
 
 /// Simple enhanced Create tab view that immediately opens new drafts
 struct SimpleEnhancedCreateView: View {

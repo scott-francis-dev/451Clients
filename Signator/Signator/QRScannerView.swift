@@ -73,7 +73,7 @@ struct QRScannerView: View {
             }
         }
         .navigationTitle("Scan QR Code")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel") {

@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Core451
 
 struct DraftsView: View {
     @State private var drafts: [Book] = []

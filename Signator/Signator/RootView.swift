@@ -19,20 +19,14 @@ struct RootView: View {
                     hasCheckedPersona = true
                 }
             }
-        } else if !hasCompletedOnboarding {
-            // First launch - show onboarding video walkthrough
-            OnboardingView()
         } else if #available(iOS 26.0, *) {
-            if hasCheckedPersona && personaManager.personas.isEmpty {
-                // No persona exists - show welcome/onboarding flow
-                WelcomeFlowView(
-                    personaManager: personaManager,
-                    deepLinkPersonaData: $deepLinkPersonaData
-                )
-            } else {
-                MainTabView()
-                    .environmentObject(personaManager)
-            }
+            // Video onboarding is bypassed for now (draft placeholder videos) —
+            // the video action-card direction will replace it. Go straight to the app.
+            // Persona creation is deferred to the point of need (when signing/pushing),
+            // not required up front. Users enter the app straight away; the sign/push
+            // actions present persona creation on demand via Common's `.requiresPersona`.
+            MainTabView()
+                .environmentObject(personaManager)
         } else {
             Text("This app requires iOS 26.0 or later.")
         }
@@ -227,21 +221,13 @@ struct WelcomeFlowView: View {
                 return
             }
             
-            // Extract the user's name from Apple ID
-            let fullName = appleIDCredential.fullName
-            let personaName: String
-            
-            if let givenName = fullName?.givenName, let familyName = fullName?.familyName {
-                personaName = "\(givenName) \(familyName)"
-            } else if let givenName = fullName?.givenName {
-                personaName = givenName
-            } else {
-                personaName = "My Persona"
-            }
-            
-            print("🍎 Creating persona from Apple Sign In: \(personaName)")
-            
-            // Navigate to persona creation with pre-filled name
+            // Apple only provides name/email on the first authorization —
+            // persist them so persona creation can prefill now and later.
+            AppleIDPrefill.remember(appleIDCredential)
+
+            print("🍎 Creating persona from Apple Sign In: \(AppleIDPrefill.name ?? "no name provided")")
+
+            // Navigate to persona creation with pre-filled name/email
             // The PersonaCreationView will handle the actual key generation and server registration
             showCreatePersona = true
             
@@ -332,6 +318,9 @@ struct WelcomeFlowView: View {
                 PersonaCreationView(
                     personaManager: personaManager,
                     initialIsPublicPersona: true,
+                    initialName: AppleIDPrefill.craftedName,
+                    initialEmail: AppleIDPrefill.email,
+                    initialPublishingHouse: AppleIDPrefill.craftedPublishingHouse,
                     initialPurpose: .publishing
                 )
             }

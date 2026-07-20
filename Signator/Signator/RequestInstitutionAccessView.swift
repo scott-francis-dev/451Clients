@@ -123,7 +123,7 @@ struct RequestInstitutionAccessView: View {
             .navigationTitle("Request Institution Access")
             .inlineNavigationTitle()
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
                 }
             }

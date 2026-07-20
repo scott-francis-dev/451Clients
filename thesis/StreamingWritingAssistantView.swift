@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Core451
 
 /// A writing assistant view with real-time streaming responses
 @available(iOS 26.0, *)

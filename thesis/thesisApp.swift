@@ -7,7 +7,6 @@
 
 import SwiftUI
 import RichTextKit
-import Core451
 
 #if os(macOS)
 /// This command customizes the app's About panel.

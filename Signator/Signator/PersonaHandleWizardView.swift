@@ -783,7 +783,7 @@ struct HandleDomainVerificationView: View {
                         wizardState.internetDomain = domain
                         wizardState.domainVerified = true
                         wizardState.domainVerificationMethod = .dns
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { onVerified() }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { onVerified() }
                     } else {
                         dnsResult = .failure("TXT record not found yet. DNS changes can take a few minutes to propagate.")
                     }
@@ -856,7 +856,7 @@ struct HandleDomainVerificationView: View {
                         wizardState.internetDomain = domain
                         wizardState.domainVerified = true
                         wizardState.domainVerificationMethod = .email
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { onVerified() }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { onVerified() }
                     } else {
                         emailResult = .failure("That code is incorrect or expired. Try again.")
                     }

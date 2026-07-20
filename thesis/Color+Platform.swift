@@ -3,7 +3,6 @@
 // Use these instead of Color(.systemXxx) or Color(UIColor.xxx) directly.
 
 import SwiftUI
-import Core451
 
 extension Color {
 #if canImport(UIKit)

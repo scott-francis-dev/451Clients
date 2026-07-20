@@ -1,5 +1,4 @@
 import SwiftUI
-import Core451
 #if canImport(UIKit)
 import UIKit
 #elseif canImport(AppKit)

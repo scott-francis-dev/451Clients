@@ -1,6 +1,5 @@
 import SwiftUI
 import CryptoKit
-import Core451
 
 /// View for entering an access code to retrieve a document for signing
 struct AccessCodeEntryView: View {

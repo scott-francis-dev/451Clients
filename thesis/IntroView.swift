@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Core451
 
 /// Typewriter-themed splash screen for the thesis app.
 /// The onFinished closure is called when the animation completes.

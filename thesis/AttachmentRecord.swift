@@ -1,6 +1,5 @@
 import Foundation
 import CoreGraphics
-import Core451
 
 struct AttachmentRecord: Codable, Identifiable, Equatable, Hashable {
     // Stable id referenced by inline objects in the document JSON.

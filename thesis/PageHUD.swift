@@ -1,5 +1,4 @@
 import SwiftUI
-import Core451
 
 struct PageHUD: View {
     let text: String

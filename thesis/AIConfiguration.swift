@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import Core451
 
 /// Unified AI manager for Apple Foundation Models (Apple Intelligence)
 @MainActor

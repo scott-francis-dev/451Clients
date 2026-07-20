@@ -12,12 +12,15 @@ import SwiftUI
 
 /// Describes one action the user can flick to and start. Pure data — selection
 /// is handled by the deck's `onActivate` callback so this stays UI-agnostic.
-public struct ActionDeckCard: Identifiable, Sendable {
+public struct ActionDeckCard: Identifiable, Hashable, Sendable {
     public let id: String
     public let title: String
     public let subtitle: String
-    /// Bundled looping video shown behind the card (e.g. "onboarding1"). When
-    /// `nil`, a `tint` gradient is used instead.
+    /// Bundled still image shown behind the card (asset name or a loose bundle
+    /// file like "SignDocument"). Takes precedence over `videoName`.
+    public let imageName: String?
+    /// Bundled looping video shown behind the card (e.g. "onboarding1"). Used
+    /// when `imageName` is nil. When both are nil, a `tint` gradient is used.
     public let videoName: String?
     /// SF Symbol accent shown above the title.
     public let systemImage: String
@@ -30,6 +33,7 @@ public struct ActionDeckCard: Identifiable, Sendable {
         id: String,
         title: String,
         subtitle: String,
+        imageName: String? = nil,
         videoName: String? = nil,
         systemImage: String = "square.stack.3d.up.fill",
         tint: Color = .blue,
@@ -38,6 +42,7 @@ public struct ActionDeckCard: Identifiable, Sendable {
         self.id = id
         self.title = title
         self.subtitle = subtitle
+        self.imageName = imageName
         self.videoName = videoName
         self.systemImage = systemImage
         self.tint = tint

@@ -8,7 +8,6 @@
 import SwiftUI
 import RichTextKit
 import Charts
-import Core451
 
 #if canImport(UIKit)
 import UIKit

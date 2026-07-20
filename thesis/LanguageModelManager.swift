@@ -8,7 +8,6 @@
 import Foundation
 import FoundationModels
 import Observation
-import Core451
 
 /// Manager for interacting with Apple's on-device language model
 @available(iOS 26.0, *)

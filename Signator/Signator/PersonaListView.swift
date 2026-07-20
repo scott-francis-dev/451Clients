@@ -138,9 +138,11 @@ struct PersonaListView: View {
                         Label("Debug", systemImage: "ladybug")
                     }
                 }
+                #if os(iOS)
                 ToolbarItem(placement: .cancellationAction) {
                     EditButton()
                 }
+                #endif
             }
             .sheet(isPresented: $showingCreate) {
                 PersonaHandleWizardView()

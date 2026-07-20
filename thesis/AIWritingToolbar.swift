@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Core451
 
 /// A toolbar view that provides quick AI-powered writing tools
 /// Can be embedded in your text editor views

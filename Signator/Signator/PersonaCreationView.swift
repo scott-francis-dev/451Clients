@@ -424,6 +424,9 @@ struct PersonaCreationView: View {
     @State private var showIdentityInfo: Bool = false
     
     @State private var isPublicPersona: Bool = true
+
+    /// Which progressive-reveal segment is open; all start collapsed.
+    @State private var expandedSegment: CreationSegment? = nil
     
     private let lockVisibilityChoice: Bool
     private let lockIdentityMethod: Bool
@@ -449,6 +452,7 @@ struct PersonaCreationView: View {
          lockIdentityMethod: Bool? = nil,
          prefilledData: OneTimePersonaData? = nil,
          initialName: String? = nil,
+         initialEmail: String? = nil,
          initialPublishingHouse: String? = nil,
          initialPurpose: PersonaPurpose? = nil) {
         self.personaManager = personaManager
@@ -461,6 +465,12 @@ struct PersonaCreationView: View {
         self.lockVisibilityChoice = (lockVisibilityChoice ?? (initialIsPublicPersona != nil))
         self.lockIdentityMethod = (lockIdentityMethod ?? (initialUseCustomDomain != nil))
         if let initialName, !initialName.isEmpty { self._name = State(initialValue: initialName) }
+        if let initialEmail, !initialEmail.isEmpty {
+            // Prefill both: the private field is hidden for public personas,
+            // so the visible Public Email field must carry the suggestion too.
+            self._privateEmail = State(initialValue: initialEmail)
+            self._publicEmail = State(initialValue: initialEmail)
+        }
         if let initialPublishingHouse, !initialPublishingHouse.isEmpty { self._publishingHouse = State(initialValue: initialPublishingHouse) }
         if let initialPurpose, prefilledData == nil {
             self._selectedPurpose = State(initialValue: initialPurpose)
@@ -838,8 +848,8 @@ struct PersonaCreationView: View {
                     Full handle: \(fullHandle)
                     
                     A permanent DID will be generated automatically (like did:451:a8k7m4p9n2q1x5)
-                    
-                    Your handle can be changed later, but your DID is permanent.
+
+                    Your handle and DID are permanent once created. Everything else can be added or changed later — each change is recorded on the blockchain, so your persona's history stays traceable.
                     """)
                 } else {
                     Text("""
@@ -859,39 +869,169 @@ struct PersonaCreationView: View {
             if selectedPurpose == nil {
                 purposePickerSection
             }
-            
-            // ── Step 3: The rest of the form (appears after purpose is chosen) ─
+
+            // ── Step 2: Progressive-reveal segments (after purpose chosen) ─
+            // Each segment is a tappable row with a green check once it has
+            // content; only the expanded segment's fields are shown.
             if selectedPurpose != nil {
                 chosenPurposeBadge
-                
-                Section {
-                    HStack(spacing: 8) {
-                        Picker("Identity Method", selection: $useCustomDomain) {
-                            Text("Start a Publishing House").tag(false)
-                            Text("I have my own domain").tag(true)
+
+                segmentRow(.identity)
+                if expandedSegment == .identity {
+                    Section {
+                        HStack(spacing: 8) {
+                            Picker("Identity Method", selection: $useCustomDomain) {
+                                Text("Start a Publishing House").tag(false)
+                                Text("I have my own domain").tag(true)
+                            }
+                            .pickerStyle(.segmented)
                         }
-                        .pickerStyle(.segmented)
+                        .padding(.bottom, 8)
+
+                        identitySection
                     }
-                    .padding(.bottom, 8)
-                    
-                    identitySection
                 }
-                
-                // Inline Credentials (optional but recommended)
-                if let purpose = selectedPurpose {
+
+                segmentRow(.credentials)
+                if expandedSegment == .credentials, let purpose = selectedPurpose {
                     credentialsInlineSection(for: purpose)
                 }
-                
-                //detailedMetadataSection
-                publicFieldsSection
-                personaProfileFieldsSection
-                
-                privateFieldsSection
+
+                segmentRow(.publicInfo)
+                if expandedSegment == .publicInfo {
+                    publicFieldsSection
+                }
+
+                segmentRow(.profileDetails)
+                if expandedSegment == .profileDetails {
+                    personaProfileFieldsSection
+                }
+
+                if !isPublicPersona {
+                    segmentRow(.privateIdentity)
+                    if expandedSegment == .privateIdentity {
+                        privateFieldsSection
+                    }
+                }
+
                 createButtonSection
                 if personaManager != nil && !(personaManager?.personas.isEmpty ?? true) {
                     deletePersonaSection
                 }
             }
+        }
+    }
+
+    // MARK: - Progressive-reveal segments
+
+    private enum CreationSegment: String, CaseIterable, Identifiable {
+        case identity, credentials, publicInfo, profileDetails, privateIdentity
+        var id: String { rawValue }
+    }
+
+    private func segmentTitle(_ segment: CreationSegment) -> String {
+        switch segment {
+        case .identity:        return "Identity"
+        case .credentials:     return "Credentials"
+        case .publicInfo:      return "Public Information"
+        case .profileDetails:  return "Profile Details"
+        case .privateIdentity: return "Private Identity"
+        }
+    }
+
+    private func segmentSubtitle(_ segment: CreationSegment) -> String {
+        switch segment {
+        case .identity:        return "Your name, publishing house, and permanent handle"
+        case .credentials:     return "Email verification, ORCID, professional credentials"
+        case .publicInfo:      return "Public email, affiliations, and social links"
+        case .profileDetails:  return "Display overrides, public address, advanced fields"
+        case .privateIdentity: return "Legal identity — encrypted on this device"
+        }
+    }
+
+    private func segmentIsRequired(_ segment: CreationSegment) -> Bool {
+        switch segment {
+        case .identity:        return true
+        case .privateIdentity: return !isPublicPersona
+        default:               return false
+        }
+    }
+
+    /// Green check = the segment has content. Optional segments can be left
+    /// empty and filled in later by editing the persona.
+    private func segmentIsComplete(_ segment: CreationSegment) -> Bool {
+        func filled(_ s: String) -> Bool {
+            !s.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        switch segment {
+        case .identity:
+            guard isDIDValid else { return false }
+            guard isPublicPersona else { return true }
+            return filled(name) && (useCustomDomain ? filled(customDomain) : filled(publishingHouse))
+        case .credentials:
+            return !credentials.isEmpty
+        case .publicInfo:
+            return filled(publicEmail) || filled(publicAffiliations) || filled(socialMediaLinks)
+        case .profileDetails:
+            return [profileDisplayName, profileDisplayPublisher, profileRequestedDomain,
+                    profileValidatedDomains, profileType, profileHash, profileMetadataJSON,
+                    profileStreet, profileCity, profileStateRegion, profilePostalCode,
+                    profileCountry].contains(where: filled)
+        case .privateIdentity:
+            return privateFieldsComplete
+        }
+    }
+
+    private func segmentRow(_ segment: CreationSegment) -> some View {
+        Section {
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    expandedSegment = (expandedSegment == segment) ? nil : segment
+                }
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: segmentIsComplete(segment) ? "checkmark.circle.fill" : "circle")
+                        .font(.title3)
+                        .foregroundStyle(segmentIsComplete(segment) ? Color.green : Color.secondary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(segmentTitle(segment))
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                        // Identity is the permanent pair: once composed, show the
+                        // label (handle) and DID status instead of generic copy.
+                        if segment == .identity && segmentIsComplete(.identity) {
+                            Text(fullHandle)
+                                .font(.caption2)
+                                .monospaced()
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                            Text("DID: assigned permanently when the persona is created")
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+                        } else {
+                            Text(segmentSubtitle(segment))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    Spacer()
+                    if segmentIsRequired(segment) && !segmentIsComplete(segment) {
+                        Text("Required")
+                            .font(.caption2.weight(.semibold))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Color.orange.opacity(0.15), in: Capsule())
+                            .foregroundStyle(.orange)
+                    }
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.tertiary)
+                        .rotationEffect(.degrees(expandedSegment == segment ? 90 : 0))
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
         }
     }
     
@@ -961,12 +1101,12 @@ struct PersonaCreationView: View {
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color(.systemBackground))
+                    .fill(Color.platformBackground)
                     .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(Color(.systemGray5), lineWidth: 1)
+                    .stroke(Color.platformGray5, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -1208,12 +1348,12 @@ struct PersonaCreationView: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color(.systemBackground))
+                .fill(Color.platformBackground)
                 .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 2)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(added ? kind.color.opacity(0.3) : Color(.systemGray5), lineWidth: 1)
+                .stroke(added ? kind.color.opacity(0.3) : Color.platformGray5, lineWidth: 1)
         )
     }
 
@@ -1287,7 +1427,7 @@ struct PersonaCreationView: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
-                .background(enabled ? kind.color : Color(.systemGray))
+                .background(enabled ? kind.color : Color.platformGray)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .disabled(!enabled)
@@ -1335,8 +1475,8 @@ struct PersonaCreationView: View {
                         )
                     }
                     TextField("Private Email (optional)", text: $privateEmail)
-                        .textInputAutocapitalization(.never)
-                        .keyboardType(.emailAddress)
+                        .platformAutocapitalization(.never)
+                        .platformKeyboardType(.emailAddress)
                         .autocorrectionDisabled(true)
 
                     // SSN formatted input
@@ -1344,7 +1484,7 @@ struct PersonaCreationView: View {
                         get: { socialSecurityNumber },
                         set: { socialSecurityNumber = formatSSN($0) }
                     ))
-                    .keyboardType(.numberPad)
+                    .platformKeyboardType(.numberPad)
                     .focused($ssnFocused)
                 }
             }
@@ -1412,8 +1552,8 @@ struct PersonaCreationView: View {
             TextField("Public Affiliations", text: $publicAffiliations)
             TextField("Social Media Links", text: $socialMediaLinks)
             TextField("Public Email", text: $publicEmail)
-                .textInputAutocapitalization(.never)
-                .keyboardType(.emailAddress)
+                .platformAutocapitalization(.never)
+                .platformKeyboardType(.emailAddress)
                 .autocorrectionDisabled(true)
         } header: {
             Text("Public Information (Optional)")
@@ -2197,9 +2337,9 @@ struct PersonaCreationView: View {
                 }
             }
             .navigationTitle("Success")
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .primaryAction) {
                     Button("Done") {
                         handleSuccessSheetDismiss()
                     }
@@ -2283,7 +2423,7 @@ struct PersonaCreationView: View {
                 }
             }
             .padding()
-            .background(Color(.systemBackground))
+            .background(Color.platformBackground)
             .cornerRadius(16)
             .shadow(color: .black.opacity(0.1), radius: 10)
         }
@@ -3071,9 +3211,9 @@ struct DictationTextField: View {
     let placeholder: String
     @Binding var text: String
     var prompt: Text? = nil
-    var keyboardType: UIKeyboardType = .default
-    var textContentType: UITextContentType? = nil
-    var autocapitalization: TextInputAutocapitalization = .sentences
+    var keyboardType: PlatformKeyboardType = .default
+    var textContentType: PlatformTextContentType? = nil
+    var autocapitalization: PlatformTextCase = .sentences
     var autocorrection: Bool = true
     
     @State private var isRecording = false
@@ -3087,9 +3227,9 @@ struct DictationTextField: View {
     var body: some View {
         HStack(spacing: 8) {
             TextField(placeholder, text: $text, prompt: prompt)
-                .keyboardType(keyboardType)
-                .textContentType(textContentType)
-                .textInputAutocapitalization(autocapitalization)
+                .platformKeyboardType(keyboardType)
+                .platformTextContentType(textContentType ?? .none)
+                .platformAutocapitalization(autocapitalization)
                 .autocorrectionDisabled(!autocorrection)
             
             Button {
@@ -3111,9 +3251,11 @@ struct DictationTextField: View {
         }
         .alert("Microphone Permission Required", isPresented: $showPermissionAlert) {
             Button("Settings") {
+#if os(iOS) || os(visionOS)
                 if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(settingsURL)
                 }
+#endif
             }
             Button("Cancel", role: .cancel) { }
         } message: {
@@ -3126,6 +3268,7 @@ struct DictationTextField: View {
         SFSpeechRecognizer.requestAuthorization { authStatus in
             DispatchQueue.main.async {
                 if authStatus == .authorized {
+#if os(iOS)
                     AVAudioSession.sharedInstance().requestRecordPermission { granted in
                         DispatchQueue.main.async {
                             if granted {
@@ -3136,6 +3279,9 @@ struct DictationTextField: View {
                             }
                         }
                     }
+#else
+                    startRecording()
+#endif
                 } else {
                     permissionDenied = true
                     showPermissionAlert = true
@@ -3149,7 +3295,8 @@ struct DictationTextField: View {
         recognitionTask?.cancel()
         recognitionTask = nil
         
-        // Configure audio session
+        // Configure audio session (iOS only; macOS has no AVAudioSession)
+#if os(iOS)
         let audioSession = AVAudioSession.sharedInstance()
         do {
             try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
@@ -3158,6 +3305,7 @@ struct DictationTextField: View {
             print("Audio session setup failed: \(error)")
             return
         }
+#endif
         
         // Create recognition request
         recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
@@ -3301,7 +3449,7 @@ private struct OneTimeSigningView: View {
                 .font(.headline)
 
             TextField("Signing Name (e.g., Organization or Event)", text: $signingName)
-                .textInputAutocapitalization(.never)
+                .platformAutocapitalization(.never)
                 .autocorrectionDisabled(true)
 
             // Show the handle preview (for private personas this will be the anonymous format)
@@ -3338,11 +3486,11 @@ private struct StartPublishingHouseView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             TextField("Your Name", text: $name)
-                .textInputAutocapitalization(.never)
+                .platformAutocapitalization(.never)
                 .autocorrectionDisabled(true)
             
             TextField("Publishing House", text: $publishingHouse)
-                .textInputAutocapitalization(.never)
+                .platformAutocapitalization(.never)
                 .autocorrectionDisabled(true)
             
             Text("Handle: \(displayHandle)")
@@ -3356,6 +3504,14 @@ private struct StartPublishingHouseView: View {
             }
         }
         .padding(.vertical, 4)
+    }
+}
+
+#Preview("Segments") {
+    NavigationStack {
+        PersonaCreationView(initialIsPublicPersona: true,
+                            initialName: "Scott Francis",
+                            initialPurpose: .publishing)
     }
 }
 

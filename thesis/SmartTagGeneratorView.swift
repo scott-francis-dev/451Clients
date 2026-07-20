@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Core451
 
 /// A view for generating smart tags using AI
 @available(iOS 26.0, *)

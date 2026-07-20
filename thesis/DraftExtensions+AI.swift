@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Core451
 
 /// Extensions to integrate AI features into your existing Draft/Book workflow
 extension Book {

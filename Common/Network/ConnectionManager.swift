@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 import os
 
 final class ConnectionManager: ObservableObject {

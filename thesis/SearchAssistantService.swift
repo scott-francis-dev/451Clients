@@ -1,6 +1,5 @@
 import Foundation
 import FoundationModels
-import Core451
 
 /// Service that handles search queries and AI-powered analysis using Apple Foundation Models
 @Observable

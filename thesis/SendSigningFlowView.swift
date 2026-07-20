@@ -10,7 +10,6 @@ import UniformTypeIdentifiers
 import PDFKit
 import CryptoKit
 import CoreGraphics
-import Core451
 #if os(iOS)
 import UIKit
 import ImageIO
@@ -618,11 +617,7 @@ struct DocumentMetadataEditor: View {
     }
 }
 
-struct SignerSelection: Identifiable, Hashable {
-    let id = UUID()
-    let did: String
-    var role: DocumentSigningService.SignerRole
-}
+// `SignerSelection` now lives in Common (Common/Models/SignerSelection.swift).
 
 struct PickSignersView: View {
     @Environment(\.dismiss) private var dismiss

@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import Combine
 
 public extension View {
     /// Gate `onSatisfied` on the existence of a persona.

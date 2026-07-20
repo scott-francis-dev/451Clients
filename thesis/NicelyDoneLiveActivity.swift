@@ -2,7 +2,6 @@
 import ActivityKit
 import WidgetKit
 import SwiftUI
-import Core451
 
 struct NicelyDoneLiveActivity: Widget {
     var body: some WidgetConfiguration {

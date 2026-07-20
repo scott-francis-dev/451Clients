@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Core451
 
 /// A view that provides AI-powered writing assistance
 @available(iOS 26.0, macOS 15.0, *)

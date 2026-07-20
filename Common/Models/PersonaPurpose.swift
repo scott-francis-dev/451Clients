@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 public enum PersonaPurpose: String, CaseIterable, Codable, Sendable {
     case publishing = "publishing"
@@ -34,6 +35,15 @@ public enum PersonaPurpose: String, CaseIterable, Codable, Sendable {
         case .proof:      return "checkmark"
         case .legal:      return "briefcase.fill"
         case .compliance: return "checkmark.seal.fill"
+        }
+    }
+
+    public var color: Color {
+        switch self {
+        case .publishing: return .blue
+        case .proof:      return .cyan
+        case .legal:      return .purple
+        case .compliance: return .green
         }
     }
 

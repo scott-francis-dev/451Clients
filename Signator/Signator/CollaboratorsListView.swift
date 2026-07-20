@@ -109,7 +109,7 @@ struct CollaboratorsListView: View {
                 let key = p.did.lowercased()
                 recentlySelected.insert(key)
                 // Clear the selection highlight after 1.2 seconds
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
                     recentlySelected.remove(key)
                 }
             } label: {
@@ -154,7 +154,7 @@ private struct AutocapitalizationCompatibility: ViewModifier {
 #if canImport(UIKit)
         if #available(iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
             // Use the modern modifier on supported UIKit platforms
-            return content.textInputAutocapitalization(.never)
+            return content.platformAutocapitalization(.never)
         } else {
             // Fallback for older iOS/tvOS/watchOS versions using UIKit
             return content.autocapitalization(UITextAutocapitalizationType.none)

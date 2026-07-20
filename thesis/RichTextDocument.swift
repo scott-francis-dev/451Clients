@@ -1,7 +1,6 @@
 import Foundation
 import SwiftUI
 import Combine
-import Core451
 
 @MainActor
 final class RichTextDocument: ObservableObject {

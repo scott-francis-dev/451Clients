@@ -7,7 +7,6 @@
 
 import SwiftUI
 import RichTextKit
-import Core451
 
 /// Enhanced Create tab view with improved + button functionality
 struct EnhancedCreateView: View {

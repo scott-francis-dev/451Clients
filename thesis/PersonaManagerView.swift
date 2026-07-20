@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import Core451
 
 struct PersonaManagerView: View {
     @EnvironmentObject private var personaManager: PersonaManager

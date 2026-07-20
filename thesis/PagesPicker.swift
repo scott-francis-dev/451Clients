@@ -1,5 +1,4 @@
 import SwiftUI
-import Core451
 
 struct PagesPicker: View {
     @Binding var book: Book

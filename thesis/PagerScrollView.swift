@@ -1,5 +1,4 @@
 import SwiftUI
-import Core451
 
 struct PagerScrollView<Content: View>: View {
     let pageCount: Int

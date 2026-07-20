@@ -1,5 +1,4 @@
 import SwiftUI
-import Core451
 
 /// Example SwiftUI view demonstrating the SearchAssistantService
 struct SearchAssistantView: View {

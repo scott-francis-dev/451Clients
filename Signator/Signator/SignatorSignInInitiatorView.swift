@@ -120,7 +120,7 @@ struct SignatorSignInInitiatorView: View {
             .navigationTitle("Sign in with Signator")
             .inlineNavigationTitle()
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
                 }
             }

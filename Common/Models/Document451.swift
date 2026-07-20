@@ -144,7 +144,7 @@ class Document451: Codable, Identifiable, Equatable, Hashable {
     // MARK: - Thesis App Specific (for compatibility)
     
     /// JSON-centric pages (used by Thesis app, ignored by Signator)
-    var pages: [Page] = []
+    var pages: [Document451Page] = []
     
     // MARK: - Initializer
     
@@ -272,12 +272,12 @@ class Document451: Codable, Identifiable, Equatable, Hashable {
         format = try c.decode(String.self, forKey: .format)
         
         // Thesis-specific (optional, may not exist in Signator uploads)
-        pages = (try? c.decode([Page].self, forKey: .pages)) ?? []
+        pages = (try? c.decode([Document451Page].self, forKey: .pages)) ?? []
         
         // Rehydrate page docs if pages exist (Thesis app specific)
         for i in pages.indices {
             var page = pages[i]
-            page.doc = RichTextDocument()
+            page.doc = Document451RichText()
             page.doc.load(from: page.richTextJSON)
             pages[i] = page
         }
@@ -294,17 +294,17 @@ class Document451: Codable, Identifiable, Equatable, Hashable {
     }
 }
 
-// MARK: - Page Model (for Thesis app compatibility)
+// MARK: - Document451Page Model (for Thesis app compatibility)
 
-/// Page model used by Thesis app for rich text documents
+/// Document451Page model used by Thesis app for rich text documents
 /// Signator doesn't use pages, but includes this for protocol compatibility
-struct Page: Codable, Identifiable, Equatable, Hashable {
+struct Document451Page: Codable, Identifiable, Equatable, Hashable {
     var id: String = UUID().uuidString
     var title: String = ""
     var richTextJSON: String = ""
     
     // Runtime-only rich text document (not encoded)
-    var doc: RichTextDocument = RichTextDocument()
+    var doc: Document451RichText = Document451RichText()
     
     enum CodingKeys: String, CodingKey {
         case id, title, richTextJSON
@@ -322,13 +322,13 @@ struct Page: Codable, Identifiable, Equatable, Hashable {
         id = try c.decode(String.self, forKey: .id)
         title = try c.decode(String.self, forKey: .title)
         richTextJSON = try c.decode(String.self, forKey: .richTextJSON)
-        doc = RichTextDocument()
+        doc = Document451RichText()
     }
     
     init() {}
     
     // Equatable conformance (ignore runtime doc)
-    static func == (lhs: Page, rhs: Page) -> Bool {
+    static func == (lhs: Document451Page, rhs: Document451Page) -> Bool {
         lhs.id == rhs.id && lhs.title == rhs.title && lhs.richTextJSON == rhs.richTextJSON
     }
     
@@ -340,9 +340,9 @@ struct Page: Codable, Identifiable, Equatable, Hashable {
     }
 }
 
-/// Placeholder for RichTextDocument (Thesis app provides real implementation)
+/// Placeholder for Document451RichText (Thesis app provides real implementation)
 /// Signator can use a stub version
-class RichTextDocument: Codable {
+class Document451RichText: Codable {
     func load(from json: String) {
         // Thesis app implements this
         // Signator doesn't need it

@@ -119,7 +119,7 @@ struct WelcomeOnboardingView: View {
                     .cornerRadius(12)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(.separator), lineWidth: 1)
+                            .stroke(.separator, lineWidth: 1)
                     )
                 }
                 .buttonStyle(.plain)

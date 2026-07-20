@@ -3,6 +3,7 @@
 // Uses the shared app-group UserDefaults so the widget/extension can read them too.
 
 import Foundation
+import Combine
 import os
 
 final class VCStore: ObservableObject {

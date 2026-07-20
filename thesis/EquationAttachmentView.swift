@@ -1,6 +1,5 @@
 import SwiftUI
 import Charts
-import Core451
 
 struct EquationAttachmentView: View {
     let objectId: String

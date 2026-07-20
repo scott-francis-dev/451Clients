@@ -1,5 +1,4 @@
 import SwiftUI
-import Core451
 
 struct MetadataView: View {
     let book: Book

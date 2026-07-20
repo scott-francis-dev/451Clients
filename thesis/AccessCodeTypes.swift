@@ -2,7 +2,6 @@
 // Shared types for access code and deep-link persona flows.
 
 import Foundation
-import Core451
 
 /// One-time persona data delivered via deep link or QR code.
 struct OneTimePersonaData: Codable {

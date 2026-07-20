@@ -1,5 +1,4 @@
 import Foundation
-import Core451
 
 // Top-level JSON document schema for rich text.
 public struct RichDoc: Codable, Equatable {

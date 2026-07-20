@@ -310,17 +310,23 @@ struct SendSigningFlowView: View {
             .hidden()
         )
         .navigationTitle("Sign Existing")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .sheet(isPresented: $showingPicker) {
             DocumentPickerView(
                 allowedUTTypes: [.pdf, .plainText, .rtf, .text, .jpeg, .png, .data],
                 allowsMultipleSelection: false,
                 onPick: { urls in
                     if let first = urls.first {
-                        pickedURL = first
-                        importError = nil
-                        withAnimation(.easeInOut(duration: 0.15)) {
-                            currentStep = .visibility
+                        do {
+                            pickedURL = try importPickedFile(first)
+                            importError = nil
+                            prefillMetadataFromDocument()
+                            withAnimation(.easeInOut(duration: 0.15)) {
+                                currentStep = .visibility
+                            }
+                        } catch {
+                            pickedURL = nil
+                            importError = "Couldn't import \(first.lastPathComponent): \(error.localizedDescription)"
                         }
                     } else {
                         importError = "No file selected."
@@ -332,11 +338,42 @@ struct SendSigningFlowView: View {
                 }
             )
         }
-        .onDisappear {
-            // Stop security scoped access if we started it
-            if let pickedURL {
-                pickedURL.stopAccessingSecurityScopedResource()
-            }
+    }
+
+    /// Copy the picked file into our temp space immediately. Security-scoped
+    /// access and iCloud availability are only guaranteed at pick time — the
+    /// user may not hit Send until much later in the flow, after navigation
+    /// has released the scope, which made the file unreadable at send time.
+    private func importPickedFile(_ url: URL) throws -> URL {
+        defer { url.stopAccessingSecurityScopedResource() }
+
+        var readData: Data?
+        var readError: Error?
+        var coordinatorError: NSError?
+        // NSFileCoordinator also downloads iCloud items that aren't local yet.
+        NSFileCoordinator().coordinate(readingItemAt: url, options: [], error: &coordinatorError) { readableURL in
+            do { readData = try Data(contentsOf: readableURL) } catch { readError = error }
+        }
+        if let readError { throw readError }
+        if let coordinatorError { throw coordinatorError }
+        guard let data = readData else { throw CocoaError(.fileReadUnknown) }
+
+        let folder = FileManager.default.temporaryDirectory
+            .appendingPathComponent("picked-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let localURL = folder.appendingPathComponent(url.lastPathComponent)
+        try data.write(to: localURL)
+        return localURL
+    }
+
+    /// Try to read embedded 451 metadata off the picked document and prefill
+    /// the form. Formats without any (e.g. .docx) leave the form untouched and
+    /// the flow's metadata steps collect the minimum from the user.
+    private func prefillMetadataFromDocument() {
+        guard let pickedURL,
+              let data = try? Data(contentsOf: pickedURL) else { return }
+        if let found = (try? DocumentMetadataEmbedder.extract(from: data, filename: pickedURL.lastPathComponent)) ?? nil {
+            metadataForm.populate(from: found)
         }
     }
 }
@@ -694,7 +731,7 @@ struct TemplateEditorView: View {
                 .buttonStyle(.bordered)
             }
             .padding()
-            .background(Color(.systemGroupedBackground))
+            .background(Color.platformGroupedBackground)
             
             // Editor or Preview
             if showingPreview {
@@ -750,10 +787,10 @@ struct TemplateEditorView: View {
                 .padding(.horizontal)
                 .padding(.bottom, 8)
             }
-            .background(Color(.systemGroupedBackground))
+            .background(Color.platformGroupedBackground)
         }
         .navigationTitle(template.name)
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .onAppear {
             documentText = template.initialContent
         }
@@ -779,7 +816,7 @@ struct NotarizeEventFlowView: View {
             }
         }
         .navigationTitle("Notarize Event")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
     }
 }
 
@@ -900,9 +937,9 @@ struct ParticipantsAndMetadataView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             TextField("Name", text: $p.name)
                             TextField("Email", text: $p.email)
-                                .textContentType(.emailAddress)
-                                .keyboardType(.emailAddress)
-                                .autocapitalization(.none)
+                                .platformTextContentType(.emailAddress)
+                                .platformKeyboardType(.emailAddress)
+                                .platformAutocapitalization(.never)
                             if let did = p.didOrHandle, !did.isEmpty {
                                 Text(did)
                                     .font(.caption2)
@@ -994,13 +1031,13 @@ struct ParticipantsAndMetadataView: View {
             }
         }
         .navigationTitle("Details & Signers")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .sheet(isPresented: $showManualEntry) {
             NavigationStack {
                 Form {
                     Section(header: Text("Identifier")) {
                         TextField("Label/Handle or DID", text: $manualHandleOrDID)
-                            .textInputAutocapitalization(.never)
+                            .platformAutocapitalization(.never)
                             .autocorrectionDisabled()
                     }
                     Section(header: Text("Optional")) {
@@ -1585,7 +1622,7 @@ struct PersonasPickerSheet: View {
                             }
                             .buttonStyle(.plain)
                             VStack(alignment: .leading) {
-                                Text(persona.id)
+                                Text(displayLabel(for: persona))
                                 Text(persona.id)
                                     .font(.caption2)
                                     .foregroundColor(.secondary)
@@ -1633,13 +1670,20 @@ struct PersonasPickerSheet: View {
             tempSelections.remove(at: idx)
         } else {
             tempSelections.append(ParticipantsAndMetadataView.Participant(
-                name: persona.id,
+                name: displayLabel(for: persona),
                 email: "",
                 didOrHandle: persona.id,
                 role: .signator,
                 source: .persona
             ))
         }
+    }
+
+    /// Human-readable label for a persona; the DID is shown separately.
+    private func displayLabel(for persona: Persona) -> String {
+        if let display = persona.displayName, !display.isEmpty { return display }
+        if !persona.name.isEmpty { return persona.name }
+        return persona.handle
     }
 }
 
@@ -1693,7 +1737,7 @@ struct InitiateHelpView: View {
             }
         }
         .navigationTitle("About Initiating")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Done") {

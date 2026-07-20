@@ -576,11 +576,7 @@ struct ReviewSheet: View {
     // ... rest of ReviewSheet ...
 }
 
-struct SignerSelection: Identifiable, Hashable {
-    let id = UUID()
-    let did: String
-    var role: DocumentSigningService.SignerRole
-}
+// `SignerSelection` now lives in Common (Common/Models/SignerSelection.swift).
 
 struct PickSignersView: View {
     @Environment(\.dismiss) private var dismiss
