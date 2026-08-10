@@ -26,9 +26,13 @@ public class SearchAssistantService {
     /// The search results that were used for the current response
     public var currentSearchResults: [SearchSnippet] = []
     
-    /// The matched scenario for the current query
+    /// The matched scenario for the current query.
+    /// Legacy: only the mock path set this. The real search path leaves it nil.
     public var currentScenario: FakeScenario?
-    
+
+    /// Real full-text search against the S451 FTS5 index. Replaces the FakeSearchResults path.
+    private let searchService = SearchService()
+
     // MARK: - Initialization
     
     public init() {}
@@ -75,27 +79,35 @@ public class SearchAssistantService {
             lastQuery = sentence
         }
         
-        // 1. Match the query to a scenario
-        guard let scenario = FakeSearchResults.matchScenario(for: sentence) else {
+        // 1. Run a real full-text search against the S451 FTS5 index.
+        //    limit: 5 + .citations realizes the "five most-cited documents" flow.
+        let searchResult: SearchResult
+        do {
+            // Default weights = citation-dominant "most cited" blend; tune RankingWeights later.
+            searchResult = try await searchService.search(query: sentence, limit: 5)
+        } catch {
             await MainActor.run {
                 isProcessing = false
-                errorMessage = "No matching topic found. Try asking about climate change, AI in education, nutrition, or urban transit."
+                errorMessage = "Search failed: \(error.localizedDescription)"
             }
             return
         }
-        
-        await MainActor.run {
-            currentScenario = scenario
+
+        guard !searchResult.snippets.isEmpty else {
+            await MainActor.run {
+                isProcessing = false
+                errorMessage = "No documents found for \"\(sentence)\"."
+            }
+            return
         }
-        
-        // 2. Get fake search results for that scenario
-        let searchResult = FakeSearchResults.makeResult(for: scenario)
-        
+
         await MainActor.run {
             currentSearchResults = searchResult.snippets
         }
-        
-        // 3. Send to Foundation Models for analysis
+
+        // 2. Send to Foundation Models for analysis.
+        //    TODO(content-hop): snippets carry titles only — search returns no body. Fetch each
+        //    hit's content before this step so the model reasons over documents, not just titles.
         do {
             let response = try await analyzeWithFoundationModels(
                 query: sentence,

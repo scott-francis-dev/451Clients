@@ -26,6 +26,22 @@ extension NSAttributedString.Key {
     static let strikethrough = NSAttributedString.Key("app.strikethrough")
     /// Indicates highlight color stored as hex string.
     static let highlightColor = NSAttributedString.Key("app.highlightColor")
+
+    /// Semantic kind of a tagged text range: "concept" | "location" | "variable" (see `EntityKind`).
+    /// Layer-2 thesis carrier for the shared entity model. Stored as a String for bridge safety.
+    static let entityType = NSAttributedString.Key("app.entityType")
+    /// Structured payload for the tagged range, stored as a JSON string: a qid for a concept,
+    /// a `VariableManifest` for a variable. Round-tripped to `TextRun.attrs.entityPayload` (JSONValue).
+    static let entityPayload = NSAttributedString.Key("app.entityPayload")
+}
+
+/// The semantic kind of a typed text range — the thesis carrier's vocabulary for the shared
+/// entity model. Persisted as the raw string in `TextRun.attrs.entityType`, so unknown future
+/// kinds decode as a plain string rather than failing. See VARIABLE_OBJECT_KIND.md.
+public enum EntityKind: String, Codable, CaseIterable {
+    case concept
+    case location
+    case variable
 }
 
 /// Codable representation of attribute values.

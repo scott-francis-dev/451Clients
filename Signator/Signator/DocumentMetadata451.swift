@@ -139,7 +139,14 @@ public struct DocumentMetadata451: Codable, Equatable, Hashable {
     
     /// Custom key-value metadata
     var customFields: [String: String]?
-    
+
+    // MARK: - Fill-in Variables (search index 3)
+
+    /// The document's `entity_type = variable` objects, produced by the carrier's ingest walk and
+    /// embedded here at publish so the server can populate index 3 without re-parsing the body.
+    /// Nil (not `[]`) when the document has no fill-in slots. See `VariableIndexObject`.
+    var variables: [VariableIndexObject]?
+
     // MARK: - Initializer
     
     init(

@@ -177,6 +177,14 @@ extension RichTextCodec {
                 } else if let linkStr = attrs[.link] as? String {
                     rtAttrs.link = linkStr
                 }
+                if let entityType = attrs[.entityType] as? String {
+                    rtAttrs.entityType = entityType
+                    if let payloadStr = attrs[.entityPayload] as? String,
+                       let data = payloadStr.data(using: .utf8),
+                       let payload = try? JSONDecoder().decode(JSONValue.self, from: data) {
+                        rtAttrs.entityPayload = payload
+                    }
+                }
 
                 inlines.append(.text(TextRun(text: substring, attrs: rtAttrs)))
             }
@@ -257,6 +265,15 @@ extension RichTextCodec {
         }
         if let link = attrs.link {
             result[.link] = link
+        }
+        if let entityType = attrs.entityType {
+            result[.entityType] = entityType
+            // Store the structured payload as a JSON string so the attribute value stays a
+            // bridgeable String (survives editor copy / undo / pasteboard round-trips).
+            if let payload = attrs.entityPayload,
+               let data = try? JSONEncoder().encode(payload) {
+                result[.entityPayload] = String(decoding: data, as: UTF8.self)
+            }
         }
         return result
     }
