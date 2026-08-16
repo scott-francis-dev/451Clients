@@ -280,23 +280,25 @@ struct MultiPartySigningView: View {
                     }
                     
                     Section(header: Text("Signers")) {
-                        ForEach(status.signers, id: \.ledgerEntryID) { signer in
+                        ForEach(status.signatures, id: \.signer) { signer in
                             VStack(alignment: .leading, spacing: 8) {
                                 // Use the Signator Calling Card component
                                 PersonaHandleCard(
-                                    handle: signer.did,
+                                    handle: signer.signer,
                                     isPublic: true,
                                     size: .compact,
                                     showCopyButton: false
                                 )
-                                
+
                                 HStack {
                                     Text(signer.role.capitalized)
                                         .font(.caption)
                                         .padding(4)
                                         .background(Color.blue.opacity(0.2))
                                         .cornerRadius(4)
-                                    Text(signer.timestamp)
+                                    // The roster lists every expected signer, so a row
+                                    // with no timestamp is one who has not signed yet.
+                                    Text(signer.timestamp ?? "Awaiting signature")
                                         .font(.caption2)
                                         .foregroundColor(.secondary)
                                 }

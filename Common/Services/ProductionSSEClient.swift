@@ -536,14 +536,19 @@ extension ProductionSSEClient {
         var isPolling = true
         var pollCount = 0
         let maxPolls = 300 // 5 minutes at 1 second intervals
-        
+
+        // The status endpoint returns the whole step history on every poll, while
+        // `onProgress` is a per-step callback. Track how many we have already
+        // delivered so a slow poll reports each step once rather than replaying them.
+        var reportedSteps = 0
+
         while isPolling && pollCount < maxPolls {
             pollCount += 1
-            
+
             do {
                 try await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
-                
-                guard let url = URL(string: "\(baseURL)/api/progress/\(taskId)") else {
+
+                guard let url = URL(string: "\(baseURL)/api/progress/\(taskId)/status") else {
                     onError(ErrorEvent(
                         code: "invalid_url",
                         message: "Invalid polling URL",
@@ -551,32 +556,37 @@ extension ProductionSSEClient {
                     ))
                     return
                 }
-                
+
                 let (data, _) = try await URLSession.shared.data(from: url)
-                
+
+                /// Mirrors the server's `ProgressStatusResponse`.
                 struct PollResponse: Decodable {
-                    let status: String
-                    let progress: ProgressStep?
-                    let result: CompletionEvent?
+                    let taskId: String
+                    let steps: [ProgressStep]
+                    let completion: CompletionEvent?
                     let error: ErrorEvent?
+                    let isComplete: Bool
                 }
-                
+
                 let response = try JSONDecoder().decode(PollResponse.self, from: data)
-                
-                if let progress = response.progress {
-                    onProgress(progress)
+
+                if response.steps.count > reportedSteps {
+                    for step in response.steps[reportedSteps...] {
+                        onProgress(step)
+                    }
+                    reportedSteps = response.steps.count
                 }
-                
-                if let result = response.result {
-                    onComplete(result)
+
+                if let completion = response.completion {
+                    onComplete(completion)
                     isPolling = false
                 }
-                
+
                 if let error = response.error {
                     onError(error)
                     isPolling = false
                 }
-                
+
             } catch {
                 print("⚠️ Polling error: \(error.localizedDescription)")
                 // Continue polling despite errors

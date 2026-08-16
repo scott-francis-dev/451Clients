@@ -86,17 +86,44 @@ public struct DocumentSigningService {
         }
     }
     
+    /// Mirrors the server's `SignaturesDocument`, returned by
+    /// `GET /api/documents/{documentId}/signatures`.
     struct SignatureStatus: Decodable {
         let documentId: String
-        let totalSignatures: Int
-        let signaturesByRole: [String: Int]
-        let signers: [SignerInfo]
-        
+        let documentHash: String
+        let metadataHash: String
+        let created: String
+        let updated: String
+        let requiredSignatures: Int
+        let collectedSignatures: Int
+        let status: String              // "pending", "signing", "complete"
+        let completedAt: String?
+        let signatures: [SignerInfo]
+
+        /// One row per signer, written when the document is published and flipped to
+        /// "verified" once that signer signs — so a row's presence is the roster,
+        /// not evidence of a signature.
         struct SignerInfo: Decodable {
-            let did: String
+            let signer: String
             let role: String
-            let timestamp: String
-            let ledgerEntryID: String
+            let signature: String?
+            let documentHash: String?
+            let metadataHash: String?
+            let timestamp: String?
+            let status: String          // "pending" or "verified"
+            let blockchainBlockIndex: Int?
+            let blockchainBlockHash: String?
+
+            var hasSigned: Bool { status == "verified" }
+        }
+
+        /// Signatures actually collected, not the size of the roster.
+        var totalSignatures: Int { collectedSignatures }
+
+        /// Counts verified signatures only, so this sums to `collectedSignatures`.
+        var signaturesByRole: [String: Int] {
+            Dictionary(grouping: signatures.filter(\.hasSigned), by: \.role)
+                .mapValues(\.count)
         }
     }
     
@@ -766,7 +793,7 @@ public struct DocumentSigningService {
         
         let statusURL = baseURL
             .appendingPathComponent("api")
-            .appendingPathComponent("document")
+            .appendingPathComponent("documents")
             .appendingPathComponent(documentId)
             .appendingPathComponent("signatures")
         
