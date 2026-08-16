@@ -8,6 +8,9 @@ struct PersonaTypeSelectionView: View {
 
     var initialName: String = ""
     var initialPublishingHouse: String = ""
+    /// Domain named in the handle wizard. Carried as a request only — proof happens
+    /// after creation, in DomainClaimView.
+    var initialRequestedDomain: String = ""
 
     var body: some View {
         NavigationStack {
@@ -72,7 +75,8 @@ struct PersonaTypeSelectionView: View {
                     personaManager: personaManager,
                     initialIsPublicPersona: selectedIsPublic,
                     initialName: initialName,
-                    initialPublishingHouse: initialPublishingHouse
+                    initialPublishingHouse: initialPublishingHouse,
+                    initialRequestedDomain: initialRequestedDomain
                 )
                 .environmentObject(personaManager)
             }

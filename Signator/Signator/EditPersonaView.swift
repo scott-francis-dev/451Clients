@@ -334,7 +334,20 @@ struct EditPersonaView: View {
                     Text("Your DID is always public and searchable.")
                         .font(.footnote)
                 }
-                
+
+                Section {
+                    NavigationLink {
+                        DomainClaimView(persona: originalPersona)
+                    } label: {
+                        Label("Verify a Domain", systemImage: "server.rack")
+                    }
+                } header: {
+                    Text("Domain Ownership")
+                } footer: {
+                    Text("Prove this persona controls a domain with a signed DNS record, then grant others the right to publish under it. Subdomains count — a department proves chem.example.edu and delegates to its own members.")
+                        .font(.footnote)
+                }
+
                 Section {
                     TextField("Email (Optional)", text: $email)
                         .platformAutocapitalization(.never)

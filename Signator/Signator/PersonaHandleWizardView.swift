@@ -466,7 +466,10 @@ private struct HandlePublishingHouseView: View {
         .navigationDestination(isPresented: $navigateToTypeSelection) {
             PersonaTypeSelectionView(
                 initialName: wizardState.personaName,
-                initialPublishingHouse: wizardState.publishingHouse
+                initialPublishingHouse: wizardState.publishingHouse,
+                // Only a domain the user actually chose travels forward, and only as a
+                // request — it is proved after creation in DomainClaimView.
+                initialRequestedDomain: wizardState.useInternetDomain ? wizardState.internetDomain : ""
             )
             .environmentObject(personaManager)
         }
@@ -491,10 +494,7 @@ struct HandleDomainVerificationView: View {
     @State private var domainInput: String = ""
     @State private var selectedMethod: PersonaHandleWizardState.DomainVerificationMethod = .email
 
-    // DNS flow
-    @State private var dnsChallenge: String = ""
-    @State private var dnsVerifying = false
-    @State private var dnsResult: VerificationResult? = nil
+    // DNS proof runs after creation, in DomainClaimView — no state needed here.
 
     // Email flow
     @State private var emailPrefix: String = "admin"
@@ -562,65 +562,38 @@ struct HandleDomainVerificationView: View {
                             }
                         }
 
-                        if dnsChallenge.isEmpty {
-                            Button {
-                                dnsChallenge = "signator-verify=\(UUID().uuidString.lowercased().prefix(16))"
-                            } label: {
-                                Text("Generate Challenge Token")
-                                    .fontWeight(.semibold)
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.indigo.opacity(0.12))
-                                    .foregroundColor(.indigo)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        // The DNS proof is a signature made with this persona's key,
+                        // checked against the key recorded in its creation block — so
+                        // there is nothing to sign with until the persona exists. We
+                        // take the domain here and prove it immediately afterwards.
+                        VStack(alignment: .leading, spacing: 10) {
+                            Label {
+                                Text("You'll add the TXT record right after creating this persona.")
+                                    .font(.subheadline)
+                            } icon: {
+                                Image(systemName: "info.circle.fill").foregroundColor(.indigo)
                             }
-                        } else {
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text("Add this TXT record to your DNS:")
-                                    .font(.subheadline).fontWeight(.medium)
 
-                                VStack(alignment: .leading, spacing: 4) {
-                                    dnsRow(label: "Host", value: "_signator-verify.\(domainForVerification.isEmpty ? "yourdomain.com" : domainForVerification)")
-                                    dnsRow(label: "Type", value: "TXT")
-                                    dnsRow(label: "Value", value: dnsChallenge)
-                                    dnsRow(label: "TTL", value: "300")
-                                }
-                                .padding(12)
-                                .background(Color.platformGray6)
-                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                        .strokeBorder(Color.indigo.opacity(0.2), lineWidth: 1)
-                                )
+                            Text("The record's value is signed by your persona's key, which doesn't exist yet. Continue, and the next step after creation will give you the exact record to publish.")
+                                .font(.caption).foregroundColor(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
 
-                                Text("DNS changes can take up to 48 hours to propagate, but usually just minutes.")
-                                    .font(.caption).foregroundColor(.secondary)
-
-                                if case .failure(let msg) = dnsResult {
-                                    Label(msg, systemImage: "xmark.circle.fill")
-                                        .font(.caption).foregroundColor(.red)
-                                }
-                                if case .success = dnsResult {
-                                    Label("Domain verified!", systemImage: "checkmark.circle.fill")
-                                        .font(.subheadline).fontWeight(.semibold).foregroundColor(.green)
-                                }
-
-                                Button {
-                                    verifyDNS()
-                                } label: {
-                                    HStack {
-                                        if dnsVerifying { ProgressView().tint(.white) }
-                                        Text(dnsVerifying ? "Checking…" : "I've Added the Record — Verify")
-                                            .fontWeight(.semibold)
-                                    }
+                            Button {
+                                wizardState.useInternetDomain = true
+                                wizardState.internetDomain = domainForVerification
+                                wizardState.domainVerified = false
+                                wizardState.domainVerificationMethod = .dns
+                                onVerified()
+                            } label: {
+                                Text("Continue — Verify After Creating")
+                                    .fontWeight(.semibold)
                                     .frame(maxWidth: .infinity)
                                     .padding()
                                     .background(Color.indigo)
                                     .foregroundColor(.white)
                                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                                }
-                                .disabled(dnsVerifying || domainForVerification.isEmpty)
                             }
+                            .disabled(domainForVerification.isEmpty)
                         }
                     }
                     .padding(16)
@@ -753,50 +726,6 @@ struct HandleDomainVerificationView: View {
         }
     }
 
-    // MARK: - DNS verification
-
-    private func verifyDNS() {
-        guard !domainForVerification.isEmpty else { return }
-        dnsVerifying = true
-        dnsResult = nil
-
-        let domain = domainForVerification
-        let challenge = dnsChallenge
-
-        Task {
-            let url = URL(string: "\(ServerConfig.baseURL)/api/persona/verify-dns")!
-            var req = URLRequest(url: url)
-            req.httpMethod = "POST"
-            req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            req.httpBody = try? JSONEncoder().encode(["domain": domain, "challenge": challenge])
-
-            do {
-                let (data, resp) = try await URLSession.shared.data(for: req)
-                let json = try? JSONDecoder().decode([String: Bool].self, from: data)
-                let verified = json?["verified"] ?? false
-
-                await MainActor.run {
-                    dnsVerifying = false
-                    if verified {
-                        dnsResult = .success
-                        wizardState.useInternetDomain = true
-                        wizardState.internetDomain = domain
-                        wizardState.domainVerified = true
-                        wizardState.domainVerificationMethod = .dns
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { onVerified() }
-                    } else {
-                        dnsResult = .failure("TXT record not found yet. DNS changes can take a few minutes to propagate.")
-                    }
-                }
-            } catch {
-                await MainActor.run {
-                    dnsVerifying = false
-                    dnsResult = .failure("Could not reach verification server.")
-                }
-            }
-        }
-    }
-
     // MARK: - Email verification
 
     private func sendVerificationEmail() {
@@ -807,21 +736,31 @@ struct HandleDomainVerificationView: View {
         let email = verificationEmail
 
         Task {
-            let url = URL(string: "\(ServerConfig.baseURL)/api/persona/send-domain-code")!
+            // The server verifies possession of the mailbox; the domain is implied by the
+            // address, so it takes no `domain` field.
+            let url = URL(string: "\(ServerConfig.baseURL)/api/verify-email")!
             var req = URLRequest(url: url)
             req.httpMethod = "POST"
             req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            req.httpBody = try? JSONEncoder().encode(["email": email, "domain": domainForVerification])
+            req.httpBody = try? JSONEncoder().encode(["email": email])
 
             do {
-                let (_, _) = try await URLSession.shared.data(for: req)
+                let (_, resp) = try await URLSession.shared.data(for: req)
+                // A rejected address comes back as 400, which is not a transport error —
+                // without this check the UI would advance to code entry with no code sent.
+                let sent = (resp as? HTTPURLResponse).map { (200...299).contains($0.statusCode) } ?? false
                 await MainActor.run {
                     emailSending = false
-                    emailSent = true
+                    if sent {
+                        emailSent = true
+                    } else {
+                        emailResult = .failure("That address was rejected. Check it and try again.")
+                    }
                 }
             } catch {
                 await MainActor.run {
                     emailSending = false
+                    emailResult = .failure("Could not reach verification server.")
                 }
             }
         }
@@ -837,11 +776,13 @@ struct HandleDomainVerificationView: View {
         let domain = domainForVerification
 
         Task {
-            let url = URL(string: "\(ServerConfig.baseURL)/api/persona/verify-domain-code")!
+            let url = URL(string: "\(ServerConfig.baseURL)/api/verify-email/confirm")!
             var req = URLRequest(url: url)
             req.httpMethod = "POST"
             req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            req.httpBody = try? JSONEncoder().encode(["email": email, "code": code, "domain": domain])
+            // The server calls the six-digit code a `token`, and infers the domain
+            // from the address, so it takes neither `code` nor `domain`.
+            req.httpBody = try? JSONEncoder().encode(["email": email, "token": code])
 
             do {
                 let (data, _) = try await URLSession.shared.data(for: req)
@@ -870,18 +811,6 @@ struct HandleDomainVerificationView: View {
         }
     }
 
-    private func dnsRow(label: String, value: String) -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            Text(label)
-                .font(.caption).fontWeight(.semibold)
-                .foregroundColor(.secondary)
-                .frame(width: 60, alignment: .leading)
-            Text(value)
-                .font(.caption.monospaced())
-                .foregroundColor(.primary)
-                .textSelection(.enabled)
-        }
-    }
 }
 
 // MARK: - Shared: Handle Mockup Visual

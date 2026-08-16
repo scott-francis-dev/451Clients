@@ -358,18 +358,9 @@ struct PersonaCreationView: View {
     private let didMethod = "did:451:"  // Our DID method (inspired by Fahrenheit 451)
     private let defaultDomain = "451.info"  // Default domain for 90% of users
     
-    // DNS Verification
-    @State private var isVerifyingDNS = false
-    @State private var dnsVerificationStatus: DNSVerificationStatus = .notStarted
-    @State private var dnsVerificationMessage: String? = nil
-    
-    enum DNSVerificationStatus {
-        case notStarted
-        case verifying
-        case success
-        case failed
-    }
-    
+    // DNS verification state lives in DomainClaimView now — it runs after creation,
+    // because the proof is signed with the key this flow is still generating.
+
     // Removed IdentityMethod enum and identityMethod state
     // Kept useCustomDomain Bool state as it is used for identity method toggle
     @State private var useCustomDomain: Bool = false
@@ -454,6 +445,7 @@ struct PersonaCreationView: View {
          initialName: String? = nil,
          initialEmail: String? = nil,
          initialPublishingHouse: String? = nil,
+         initialRequestedDomain: String? = nil,
          initialPurpose: PersonaPurpose? = nil) {
         self.personaManager = personaManager
         self.onCreate = onCreate
@@ -472,6 +464,14 @@ struct PersonaCreationView: View {
             self._publicEmail = State(initialValue: initialEmail)
         }
         if let initialPublishingHouse, !initialPublishingHouse.isEmpty { self._publishingHouse = State(initialValue: initialPublishingHouse) }
+        // A domain named in the wizard is a *request*, not a proof: it rides along as
+        // `domainToBeVerified` → `requestedDomain` on the profile, and stays out of the
+        // handle. Putting it in the handle would trip the server's finalize-time DNS
+        // check (every common TLD is "restricted"), blocking creation until DNS
+        // propagates. Ownership is proved afterwards in DomainClaimView.
+        if let initialRequestedDomain, !initialRequestedDomain.isEmpty {
+            self._profileRequestedDomain = State(initialValue: initialRequestedDomain)
+        }
         if let initialPurpose, prefilledData == nil {
             self._selectedPurpose = State(initialValue: initialPurpose)
         }
@@ -1223,45 +1223,24 @@ struct PersonaCreationView: View {
     }
     
     // MARK: - Inline DNS Verification View used by HaveMyOwnDomainView
+    //
+    // Domain ownership is proved by a DNS record signed with this persona's key,
+    // checked against the key in its creation block — so it cannot be done until
+    // the persona exists. See DomainClaimView, reached from Edit Persona.
     @ViewBuilder
     private var dnsVerificationView: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
-                switch dnsVerificationStatus {
-                case .notStarted:
-                    Image(systemName: "questionmark.circle").foregroundColor(.secondary)
-                    Text("DNS verification not started")
-                        .foregroundColor(.secondary)
-                case .verifying:
-                    ProgressView().progressViewStyle(.circular)
-                    Text("Verifying DNS…")
-                        .foregroundColor(.secondary)
-                case .success:
-                    Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
-                    Text("DNS verified successfully")
-                        .foregroundColor(.green)
-                case .failed:
-                    Image(systemName: "xmark.octagon.fill").foregroundColor(.red)
-                    Text("DNS verification failed")
-                        .foregroundColor(.red)
-                }
-                Spacer()
-            }
-
-            if let message = dnsVerificationMessage, !message.isEmpty {
-                Text(message)
-                    .font(.footnote)
+                Image(systemName: "clock.badge.checkmark")
+                    .foregroundColor(.blue)
+                Text("Verified after you create this persona")
                     .foregroundColor(.secondary)
+                Spacer()
             }
 
-            HStack {
-                Spacer()
-                Button(isVerifyingDNS ? "Verifying…" : "Verify DNS") {
-                    Task { await verifyDNS() }
-                }
-                .disabled(isVerifyingDNS)
-                .buttonStyle(.borderedProminent)
-            }
+            Text("The TXT record you'll publish is signed by this persona's key, which is generated at creation. Open Edit Persona → Verify a Domain once it exists, and you'll get the exact record to add.")
+                .font(.footnote)
+                .foregroundColor(.secondary)
         }
         .padding(.vertical, 4)
     }
@@ -1639,109 +1618,6 @@ struct PersonaCreationView: View {
                     .foregroundColor(.secondary)
             }
         }
-    }
-    
-    // MARK: - DNS Verification
-    
-    private func verifyDNS() async {
-        await MainActor.run {
-            isVerifyingDNS = true
-            dnsVerificationStatus = .verifying
-            dnsVerificationMessage = "Checking DNS records..."
-        }
-        
-        defer {
-            Task { @MainActor in
-                isVerifyingDNS = false
-            }
-        }
-        
-        do {
-            let handle = normalizedDID
-            let domain = customDomain.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-            
-            // For custom domains: _atproto.{full-handle-minus-domain}
-            // Example: gary-lutz.lutz.pub → _atproto.gary-lutz (on lutz.pub zone)
-            guard let lastDotIndex = handle.lastIndex(of: ".") else {
-                await MainActor.run {
-                    dnsVerificationStatus = .failed
-                    dnsVerificationMessage = "Invalid handle format"
-                }
-                return
-            }
-            
-            let handlePart = String(handle[..<lastDotIndex])  // e.g., "gary-lutz"
-            
-            // ATProtocol format:
-            // TXT record name: _atproto.{handle-part} (under the user's domain)
-            // TXT record value: did={fullDID}
-            let txtRecordName = "_atproto.\(handlePart)"  // e.g., "_atproto.gary-lutz"
-            let expectedValue = "did=\(fullDID)"  // e.g., "did:451:a8k7m4p9n2q1x5"
-            
-            // Call server API to verify DNS
-            guard let url = URL(string: ServerConfig.baseURL + "/api/persona/verify-dns") else {
-                throw URLError(.badURL)
-            }
-            
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            
-            let verifyRequest = DNSVerifyRequest(
-                handle: handle,
-                domain: domain,
-                txtRecordName: txtRecordName,
-                expectedValue: expectedValue,
-                fullDID: fullDID
-            )
-            
-            request.httpBody = try JSONEncoder().encode(verifyRequest)
-            
-            let (data, response) = try await URLSession.shared.data(for: request)
-            
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw URLError(.badServerResponse)
-            }
-            
-            if (200...299).contains(httpResponse.statusCode) {
-                let verifyResponse = try JSONDecoder().decode(DNSVerifyResponse.self, from: data)
-                
-                await MainActor.run {
-                    if verifyResponse.verified {
-                        dnsVerificationStatus = .success
-                        dnsVerificationMessage = "DNS verified successfully! ✓"
-                    } else {
-                        dnsVerificationStatus = .failed
-                        dnsVerificationMessage = verifyResponse.message ?? "DNS verification failed"
-                    }
-                }
-            } else {
-                let errorMsg = String(data: data, encoding: .utf8) ?? "Unknown error"
-                await MainActor.run {
-                    dnsVerificationStatus = .failed
-                    dnsVerificationMessage = "Verification failed: \(errorMsg)"
-                }
-            }
-        } catch {
-            await MainActor.run {
-                dnsVerificationStatus = .failed
-                dnsVerificationMessage = "Error: \(error.localizedDescription)"
-            }
-        }
-    }
-    
-    private struct DNSVerifyRequest: Encodable {
-        let handle: String
-        let domain: String
-        let txtRecordName: String
-        let expectedValue: String
-        let fullDID: String
-    }
-    
-    private struct DNSVerifyResponse: Decodable {
-        let verified: Bool
-        let message: String?
-        let txtRecordValue: String?
     }
     
     // MARK: - Actions
