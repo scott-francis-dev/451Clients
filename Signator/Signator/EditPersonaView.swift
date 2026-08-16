@@ -341,6 +341,11 @@ struct EditPersonaView: View {
                     } label: {
                         Label("Verify a Domain", systemImage: "server.rack")
                     }
+                    NavigationLink {
+                        DomainDelegationView(owner: originalPersona, personaManager: personaManager)
+                    } label: {
+                        Label("Delegate a Domain", systemImage: "person.badge.key")
+                    }
                 } header: {
                     Text("Domain Ownership")
                 } footer: {
