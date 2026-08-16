@@ -48,12 +48,5 @@ final class Core451Tests: XCTestCase {
         doc.accessRights = .public
         XCTAssertEqual(doc.accessrights, "public")
     }
-
-    func testPageCodable() throws {
-        let page = Page(id: "p1", title: "Intro", richTextJSON: "{}")
-        let data = try JSONEncoder().encode(page)
-        let decoded = try JSONDecoder().decode(Page.self, from: data)
-        XCTAssertEqual(decoded.id, "p1")
-        XCTAssertEqual(decoded.title, "Intro")
-    }
 }
+

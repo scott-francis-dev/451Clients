@@ -3,7 +3,7 @@ import Core451
 import Foundation
 
 struct SignCommand: ParsableCommand {
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         commandName: "sign",
         abstract: "Sign a document using a persona's Secure Enclave key"
     )
@@ -25,7 +25,7 @@ struct SignCommand: ParsableCommand {
 
     mutating func run() throws {
         if let server = server {
-            ServerConfig.setCustomServer(server)
+            ServerConfig.overrideURL = server
         }
 
         let url = URL(fileURLWithPath: filePath)

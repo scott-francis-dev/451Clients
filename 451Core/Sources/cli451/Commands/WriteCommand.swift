@@ -3,7 +3,7 @@ import Core451
 import Foundation
 
 struct WriteCommand: ParsableCommand {
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         commandName: "write",
         abstract: "Write data to S3 and record on the blockchain (sensor data, files, JSON payloads)"
     )
@@ -28,7 +28,7 @@ struct WriteCommand: ParsableCommand {
 
     mutating func run() throws {
         if let server = server {
-            ServerConfig.setCustomServer(server)
+            ServerConfig.overrideURL = server
         }
 
         guard file != nil || json != nil else {

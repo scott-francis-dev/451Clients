@@ -3,7 +3,7 @@ import Core451
 import Foundation
 
 struct WitnessCommand: ParsableCommand {
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         commandName: "witness",
         abstract: "Capture witness proof: two timestamped photos then optional video, streamed to S3"
     )
@@ -31,7 +31,7 @@ struct WitnessCommand: ParsableCommand {
 
     mutating func run() throws {
         if let server = server {
-            ServerConfig.setCustomServer(server)
+            ServerConfig.overrideURL = server
         }
 
         if verbose {

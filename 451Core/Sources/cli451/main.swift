@@ -2,7 +2,7 @@ import ArgumentParser
 import Core451
 
 struct CLI451: ParsableCommand {
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         commandName: "451",
         abstract: "451 Protocol command-line tool",
         discussion: """

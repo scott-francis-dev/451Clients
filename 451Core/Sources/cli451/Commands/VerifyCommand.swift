@@ -3,7 +3,7 @@ import Core451
 import Foundation
 
 struct VerifyCommand: ParsableCommand {
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         commandName: "verify",
         abstract: "Verify the signature and blockchain record of a 451 document"
     )
@@ -22,7 +22,7 @@ struct VerifyCommand: ParsableCommand {
 
     mutating func run() throws {
         if let server = server {
-            ServerConfig.setCustomServer(server)
+            ServerConfig.overrideURL = server
         }
 
         let url = URL(fileURLWithPath: filePath)

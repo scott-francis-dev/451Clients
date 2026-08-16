@@ -3,7 +3,7 @@ import Core451
 import Foundation
 
 struct StreamCommand: ParsableCommand {
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         commandName: "stream",
         abstract: "Stream a file or device feed directly to S3 and record on the blockchain"
     )
@@ -28,7 +28,7 @@ struct StreamCommand: ParsableCommand {
 
     mutating func run() throws {
         if let server = server {
-            ServerConfig.setCustomServer(server)
+            ServerConfig.overrideURL = server
         }
 
         if verbose {
