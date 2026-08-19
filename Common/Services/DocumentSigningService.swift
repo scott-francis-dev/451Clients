@@ -152,50 +152,120 @@ public struct DocumentSigningService {
         let count: Int
     }
     
-    /// Represents a document that requires signature from the current user
+    /// Represents a document that requires signature from the current user.
+    ///
+    /// Mirrors the server's `MultiPersonaPendingSignaturesResponse.documents` element exactly.
+    /// The earlier shape here (`uploadedBy`, `requiredRole`, `status`, `existingSignatures`,
+    /// `ledgerProofEntryID`) was modelled against an API the server never exposed, so every
+    /// non-empty response failed to decode with `keyNotFound` — silently, because an empty
+    /// `documents` array decodes fine and that is the common case.
+    ///
+    /// The server builds each document from the "signatures" index, one row per signer per
+    /// document, and returns the matching row's full property bag as `metadata`. Everything the
+    /// old shape exposed that still exists is recovered from there as a computed property.
     public struct PendingDocument: Codable, Identifiable {
-        public let id: String // documentId
         public let documentId: String
-        public let title: String?
-        public let originalFilename: String?
         public let documentHash: String
-        public let documentURL: String?
-        public let uploadedAt: String?
-        public let uploadedBy: String // Author DID
-        public let requiredRole: SignerRole
-        public let status: String // "pending", "signed", "finalized"
-        public let ledgerProofEntryID: String? // Optional - only present if ledger service is available
-        public let existingSignatures: [SignerInfo]
-        public let accessCode: String? // Human-readable access code (e.g., "451-7892")
-        
-        public struct SignerInfo: Codable {
+        public let title: String?
+        public let fileType: String
+        public let authorDIDs: [String]
+        public let participants: [ParticipantInfo]
+        public let requiredSignatures: Int
+        public let currentSignatureCount: Int
+        public let createdAt: String?
+        /// The properties of the signature row belonging to the persona that asked — so
+        /// `metadata["role"]`, `metadata["signer"]` and `metadata["status"]` describe *this*
+        /// signer, not the document as a whole.
+        public let metadata: [String: String]?
+
+        public var id: String { documentId }
+
+        public struct ParticipantInfo: Codable {
             public let did: String
-            public let role: String
-            public let timestamp: String
-            public let ledgerEntryID: String
+            public let hasSigned: Bool
+            public let signedAt: String?
         }
-        
-        // Helper computed properties
+
+        // MARK: Derived from the signer's own index row
+
+        /// Nil when the row carries no role, or one outside `SignerRole`. Callers must handle
+        /// that rather than substituting a default — a role is part of what a signature asserts.
+        public var requiredRole: SignerRole? {
+            metadata?["role"].flatMap(SignerRole.init(rawValue:))
+        }
+
+        /// This signer's status on the document: "pending" until their row flips to "verified".
+        public var status: String {
+            metadata?["status"] ?? "pending"
+        }
+
         public var hasSigned: Bool {
-            status == "signed"
+            status == "verified"
         }
-        
+
+        /// The server sends no explicit finalized flag; a document is done when every participant
+        /// has signed.
         public var isFinalized: Bool {
-            status == "finalized"
+            requiredSignatures > 0 && currentSignatureCount >= requiredSignatures
         }
-        
-        public var displayTitle: String {
-            title ?? originalFilename ?? "Untitled Document"
+
+        // MARK: Derived from the document
+
+        public var uploadedBy: String {
+            authorDIDs.first ?? metadata?["author"] ?? "Unknown"
         }
-        
-        public var displaySubtitle: String {
-            let roleText = "Sign as \(requiredRole.rawValue.capitalized)"
-            if let date = uploadedAt {
-                return "\(roleText) • Uploaded \(date)"
+
+        public var uploadedAt: String? {
+            createdAt
+        }
+
+        public var originalFilename: String? {
+            metadata?["originalFilename"]
+        }
+
+        /// Not carried by the pending-signatures response. Kept so callers that offer an inline
+        /// preview can keep compiling; they simply have nothing to show.
+        public var documentURL: String? {
+            metadata?["documentURL"]
+        }
+
+        public var accessCode: String? {
+            metadata?["accessCode"]
+        }
+
+        /// Signatures already collected, keyed by signer DID. The old `ledgerEntryID` has no
+        /// server-side counterpart — signatures are chained by blockchain block, not ledger entry.
+        public var existingSignatures: [SignerInfo] {
+            participants.filter(\.hasSigned).map {
+                SignerInfo(did: $0.did, role: nil, timestamp: $0.signedAt)
             }
-            return roleText
         }
-        
+
+        public struct SignerInfo {
+            public let did: String
+            public let role: String?
+            public let timestamp: String?
+        }
+
+        // MARK: Display
+
+        public var displayTitle: String {
+            title ?? metadata?["documentTitle"] ?? originalFilename ?? "Untitled Document"
+        }
+
+        public var displaySubtitle: String {
+            let progress = "\(currentSignatureCount)/\(requiredSignatures) signed"
+            guard let role = requiredRole else {
+                if let date = createdAt { return "\(progress) • \(date)" }
+                return progress
+            }
+            let roleText = "Sign as \(role.rawValue.capitalized)"
+            if let date = createdAt {
+                return "\(roleText) • \(progress) • \(date)"
+            }
+            return "\(roleText) • \(progress)"
+        }
+
         public var formattedAccessCode: String? {
             accessCode
         }

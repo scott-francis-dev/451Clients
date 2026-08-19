@@ -1,79 +1,11 @@
 import SwiftUI
 import CryptoKit
 
-// MARK: - Pending Signatures API Models
-struct SignedSearchRequest: Codable {
-    let personaDID: String
-    let query: String
-    let timestamp: String
-    let signature: String
-}
-
-struct PendingSignaturesResponse: Codable {
-    let personaDID: String
-    let pendingCount: Int
-    let documents: [PendingDocument]
-}
-
-struct PendingDocument: Codable, Identifiable {
-    var id: String { documentDID }
-    let documentDID: String
-    let title: String?
-    let type: String?
-    let requiredSignatures: Int
-    let currentSignatureCount: Int
-    let createdAt: String?
-    let authorizedSigners: [String]
-    let documentHash: String?
-}
-
-// MARK: - Pending Signatures Service
-enum PendingSignaturesService {
-    static func makeTimestamp() -> String {
-        ISO8601DateFormatter().string(from: Date())
-    }
-
-    static func canonicalMessage(personaDID: String, query: String, timestamp: String) -> String {
-        "\(personaDID)|\(query)|\(timestamp)"
-    }
-
-    static func signMessageBase64(_ message: String, privateKey: P256.Signing.PrivateKey) throws -> String {
-        let data = Data(message.utf8)
-        let signature = try privateKey.signature(for: data)
-        return Data(signature.derRepresentation).base64EncodedString()
-    }
-
-    static func fetchPending(
-        personaDID: String,
-        query: String = "",
-        privateKey: P256.Signing.PrivateKey,
-        baseURLString: String
-    ) async throws -> PendingSignaturesResponse {
-        guard let baseURL = URL(string: baseURLString) else {
-            throw URLError(.badURL)
-        }
-        let timestamp = makeTimestamp()
-        let message = canonicalMessage(personaDID: personaDID, query: query, timestamp: timestamp)
-        let signature = try signMessageBase64(message, privateKey: privateKey)
-        let body = SignedSearchRequest(personaDID: personaDID, query: query, timestamp: timestamp, signature: signature)
-
-        var request = URLRequest(url: baseURL.appendingPathComponent("/search/pending-signatures"))
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONEncoder().encode(body)
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
-            let bodyString = String(data: data, encoding: .utf8) ?? ""
-            if statusCode == 404, bodyString.localizedCaseInsensitiveContains("not found") {
-                return PendingSignaturesResponse(personaDID: personaDID, pendingCount: 0, documents: [])
-            }
-            throw NSError(domain: "PendingSignaturesService", code: statusCode, userInfo: [NSLocalizedDescriptionKey: "Server error: \(bodyString)"])
-        }
-        return try JSONDecoder().decode(PendingSignaturesResponse.self, from: data)
-    }
-}
+// Pending signatures used to be fetched here by POSTing a persona-signed request to
+// `/search/pending-signatures`. That route never existed on the server, and the signature it
+// computed was never checked by anything — `POST /api/documents/pending-signatures` accepts a
+// `signedRequest` field and ignores it (routes.swift:2086). This screen now uses
+// `DocumentSigningService.fetchPendingDocuments`, which calls the route the server actually serves.
 
 // MARK: - Submit Signature Service
 enum DocumentSignatureService {
@@ -381,9 +313,9 @@ struct SignRequest: Identifiable, Hashable {
     let subtitle: String
     let status: Status
     let documentId: String
-    let pendingDocument: PendingDocument?
-    
-    init(id: String, title: String, subtitle: String, status: Status, documentId: String = "", pendingDocument: PendingDocument? = nil) {
+    let pendingDocument: DocumentSigningService.PendingDocument?
+
+    init(id: String, title: String, subtitle: String, status: Status, documentId: String = "", pendingDocument: DocumentSigningService.PendingDocument? = nil) {
         self.id = id
         self.title = title
         self.subtitle = subtitle
@@ -697,28 +629,20 @@ struct SignRequestsView: View {
         var aggregated: [SignRequest] = []
 
         for persona in personas {
-            ClientLogger.info(component: LogComponent.signRequestsView, "🔐 Loading key and querying pending for persona: \(persona.name) | DID: \(persona.id)", requestID: requestID)
+            ClientLogger.info(component: LogComponent.signRequestsView, "🔎 Querying pending for persona: \(persona.name) | DID: \(persona.id)", requestID: requestID)
             do {
-                // Load private key for this persona to sign the search request
-                let privateKey = try PrivateKeyStore.loadPrivateKey(for: persona.id)
-                let response = try await PendingSignaturesService.fetchPending(
-                    personaDID: persona.id,
-                    query: "",
-                    privateKey: privateKey,
-                    baseURLString: ServerConfig.baseURL
-                )
-                ClientLogger.info(component: LogComponent.signRequestsView, "📥 Persona \(persona.name) has \(response.pendingCount) pending", requestID: requestID)
+                let documents = try await DocumentSigningService.fetchPendingDocuments(forSignerDID: persona.id)
+                ClientLogger.info(component: LogComponent.signRequestsView, "📥 Persona \(persona.name) has \(documents.count) pending", requestID: requestID)
 
                 // Map response documents into SignRequest rows
-                let rows: [SignRequest] = response.documents.map { doc in
-                    let title = (doc.title?.isEmpty == false ? doc.title! : "Document")
+                let rows: [SignRequest] = documents.map { doc in
                     let subtitle = "Signatures: \(doc.currentSignatureCount)/\(doc.requiredSignatures)"
                     return SignRequest(
-                        id: doc.documentDID,
-                        title: title,
+                        id: doc.documentId,
+                        title: doc.displayTitle,
                         subtitle: subtitle,
                         status: .pending,
-                        documentId: doc.documentDID,
+                        documentId: doc.documentId,
                         pendingDocument: doc
                     )
                 }
@@ -1796,7 +1720,9 @@ struct DocumentSigningDetailView: View {
                 Section("Document Details") {
                     LabeledContent("Title", value: pendingDocument.displayTitle)
                     LabeledContent("Uploaded By", value: pendingDocument.uploadedBy)
-                    LabeledContent("Your Role", value: pendingDocument.requiredRole.rawValue.capitalized)
+                    if let role = pendingDocument.requiredRole {
+                        LabeledContent("Your Role", value: role.rawValue.capitalized)
+                    }
                     
                     if let uploadedAt = pendingDocument.uploadedAt {
                         LabeledContent("Uploaded", value: uploadedAt)
@@ -1811,7 +1737,7 @@ struct DocumentSigningDetailView: View {
                 // Existing Signatures
                 if !pendingDocument.existingSignatures.isEmpty {
                     Section("Existing Signatures (\(pendingDocument.existingSignatures.count))") {
-                        ForEach(pendingDocument.existingSignatures, id: \.ledgerEntryID) { sig in
+                        ForEach(pendingDocument.existingSignatures, id: \.did) { sig in
                             VStack(alignment: .leading, spacing: 4) {
                                 HStack {
                                     Image(systemName: "signature")
@@ -1820,16 +1746,20 @@ struct DocumentSigningDetailView: View {
                                         .font(.caption)
                                         .lineLimit(1)
                                     Spacer()
-                                    Text(sig.role.capitalized)
-                                        .font(.caption2)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.blue.opacity(0.2))
-                                        .cornerRadius(4)
+                                    if let role = sig.role {
+                                        Text(role.capitalized)
+                                            .font(.caption2)
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 2)
+                                            .background(Color.blue.opacity(0.2))
+                                            .cornerRadius(4)
+                                    }
                                 }
-                                Text(sig.timestamp)
-                                    .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                if let timestamp = sig.timestamp {
+                                    Text(timestamp)
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
                             }
                         }
                     }
@@ -1975,32 +1905,26 @@ struct DocumentSigningDetailView: View {
             
             ClientLogger.debug(component: LogComponent.documentSigningDetail, "Document hash decoded: \(documentHashData.base64EncodedString().prefix(20))...", requestID: requestID)
             
-            // Determine previous entry ID (last signature or proof)
-            let previousEntryID: String
-            if let lastSig = pendingDocument.existingSignatures.last {
-                previousEntryID = lastSig.ledgerEntryID
-                ClientLogger.info(component: LogComponent.documentSigningDetail, "Chaining to last signature: \(previousEntryID)", requestID: requestID)
-            } else {
-                guard let proofEntryID = pendingDocument.ledgerProofEntryID else {
-                    ClientLogger.error(component: LogComponent.documentSigningDetail, "Missing ledger proof entry ID", requestID: requestID)
-                    throw DocumentSigningError.invalidDocumentId
-                }
-                previousEntryID = proofEntryID
-                ClientLogger.info(component: LogComponent.documentSigningDetail, "Chaining to proof entry: \(previousEntryID)", requestID: requestID)
+            // The role is part of what the signature asserts, so it is not defaulted.
+            guard let role = pendingDocument.requiredRole else {
+                ClientLogger.error(component: LogComponent.documentSigningDetail, "Document carries no signing role for this persona", requestID: requestID)
+                throw DocumentSigningError.invalidDocumentId
             }
             
             ClientLogger.info(component: LogComponent.documentSigningDetail, "Calling DocumentSigningService.addSignature()", requestID: requestID)
-            ClientLogger.info(component: LogComponent.documentSigningDetail, "Role: \(pendingDocument.requiredRole.rawValue)", requestID: requestID)
+            ClientLogger.info(component: LogComponent.documentSigningDetail, "Role: \(role.rawValue)", requestID: requestID)
             
-            // Add signature via the service
+            // Add signature via the service. Chaining is server-authoritative: the sign route
+            // takes previousEntryID from its own head.json (routes.swift:853) and ignores the
+            // client's value, so there is nothing meaningful to send.
             let response = try await DocumentSigningService.addSignature(
                 documentId: pendingDocument.documentId,
                 signerDID: selectedDID,
                 signerPublicKey: publicKey,
                 documentHash: documentHashData,
                 privateKey: privateKey,
-                role: pendingDocument.requiredRole,
-                previousEntryID: previousEntryID
+                role: role,
+                previousEntryID: nil
             )
             
             ClientLogger.info(component: LogComponent.documentSigningDetail, "✅ Signature added successfully", requestID: requestID)

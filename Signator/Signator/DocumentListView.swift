@@ -126,7 +126,7 @@ struct DocumentListView: View {
                                         NavigationLink(destination: RealDocumentSigningView(document: doc)) {
                                             GlassCardView(
                                                 title: doc.displayTitle,
-                                                subtitle: "Signed as \(doc.requiredRole.rawValue.capitalized)",
+                                                subtitle: doc.requiredRole.map { "Signed as \($0.rawValue.capitalized)" } ?? "Signed",
                                                 color: .green,
                                                 systemImage: "checkmark.seal.fill"
                                             ) {
@@ -404,13 +404,15 @@ struct RealDocumentSigningView: View {
                         }
                     }
                     
-                    HStack {
-                        Image(systemName: "tag.fill")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text("Role: \(document.requiredRole.rawValue.capitalized)")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+                    if let role = document.requiredRole {
+                        HStack {
+                            Image(systemName: "tag.fill")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Text("Role: \(role.rawValue.capitalized)")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
                     }
                     
                     HStack {
@@ -432,7 +434,7 @@ struct RealDocumentSigningView: View {
                         Text("Signatures (\(document.existingSignatures.count))")
                             .font(.headline)
                         
-                        ForEach(document.existingSignatures, id: \.ledgerEntryID) { signer in
+                        ForEach(document.existingSignatures, id: \.did) { signer in
                             HStack {
                                 Image(systemName: "signature")
                                     .foregroundColor(.blue)
@@ -440,14 +442,18 @@ struct RealDocumentSigningView: View {
                                     Text(signer.did)
                                         .font(.subheadline)
                                     HStack {
-                                        Text(signer.role.capitalized)
-                                            .font(.caption)
-                                            .padding(4)
-                                            .background(Color.blue.opacity(0.2))
-                                            .cornerRadius(4)
-                                        Text(signer.timestamp)
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
+                                        if let role = signer.role {
+                                            Text(role.capitalized)
+                                                .font(.caption)
+                                                .padding(4)
+                                                .background(Color.blue.opacity(0.2))
+                                                .cornerRadius(4)
+                                        }
+                                        if let timestamp = signer.timestamp {
+                                            Text(timestamp)
+                                                .font(.caption2)
+                                                .foregroundColor(.secondary)
+                                        }
                                     }
                                 }
                                 Spacer()
@@ -620,6 +626,13 @@ struct RealDocumentSigningView: View {
             return
         }
         
+        // The role is part of what the signature asserts, so it is not defaulted: without one
+        // there is nothing honest to sign as.
+        guard let role = document.requiredRole else {
+            errorMessage = "This document does not say what role you are signing in."
+            return
+        }
+        
         isProcessing = true
         errorMessage = nil
         
@@ -631,17 +644,17 @@ struct RealDocumentSigningView: View {
             
             let documentHash = Data(SHA256.hash(data: data))
             
-            // Get the last entry ID to chain from
-            let previousID = document.existingSignatures.last?.ledgerEntryID ?? document.ledgerProofEntryID
-            
             let response = try await DocumentSigningService.addSignature(
                 documentId: document.documentId,
                 signerDID: persona.id,
                 signerPublicKey: publicKey,
                 documentHash: documentHash,
                 privateKey: privateKey,
-                role: document.requiredRole,
-                previousEntryID: previousID
+                role: role,
+                // Chaining is server-authoritative: POST /api/document/:id/sign takes
+                // previousEntryID from its own head.json (routes.swift:853) and ignores whatever
+                // the client sends.
+                previousEntryID: nil
             )
             
             await MainActor.run {

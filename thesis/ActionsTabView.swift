@@ -22,7 +22,7 @@ struct SignRequestsTabRequest: Identifiable {
     let subtitle: String
     let status: Status
     let documentId: String
-    let pendingDocument: PendingDocument?
+    let pendingDocument: DocumentSigningService.PendingDocument?
 }
 
 // MARK: - Actions Tab Root View
@@ -406,20 +406,14 @@ struct ActionsTabView: View {
         var aggregated: [SignRequestsTabRequest] = []
         for persona in personas {
             do {
-                let privateKey = try PrivateKeyStore.loadPrivateKey(for: persona.id)
-                let response = try await PendingSignaturesService.fetchPending(
-                    personaDID: persona.id,
-                    query: "",
-                    privateKey: privateKey,
-                    baseURLString: ServerConfig.baseURL
-                )
-                let rows = response.documents.map { doc in
+                let documents = try await DocumentSigningService.fetchPendingDocuments(forSignerDID: persona.id)
+                let rows = documents.map { doc in
                     SignRequestsTabRequest(
-                        id: doc.documentDID,
-                        title: doc.title ?? "Document",
+                        id: doc.documentId,
+                        title: doc.displayTitle,
                         subtitle: "Signatures: \(doc.currentSignatureCount)/\(doc.requiredSignatures)",
                         status: .pending,
-                        documentId: doc.documentDID,
+                        documentId: doc.documentId,
                         pendingDocument: doc
                     )
                 }
