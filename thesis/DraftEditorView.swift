@@ -115,24 +115,12 @@ struct DraftEditorView: View {
         )
     }
     
-    // Use FakeSearchResults to get real search data based on query
-    private var derivedSearchResults: [SearchSnippet] {
-        let q = _currentSearchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
-        print("🔍 derivedSearchResults computed: query='\(q)'")
-        guard !q.isEmpty else {
-            print("🔍 -> empty, returning []")
-            return []
-        }
-        
-        // Use existing FakeSearchResults infrastructure
-        if let searchResult = FakeSearchResults.search(query: q) {
-            print("🔍 -> matched! \(searchResult.snippets.count) snippets")
-            return searchResult.snippets
-        } else {
-            print("🔍 -> no match")
-            return []
-        }
-    }
+    // Real search results for the current query. Populated asynchronously by
+    // generateSearchSummary() (search is a network call), rendered by the sidebar.
+    @State private var derivedSearchResults: [SearchSnippet] = []
+
+    // Real full-text search against the S451 FTS5 index (replaces FakeSearchResults).
+    private let searchService = SearchService()
 
     // Current page plain text for suggestions
     private var currentPagePlainText: String {
@@ -150,10 +138,20 @@ struct DraftEditorView: View {
         isGeneratingSummary = true
         
         Task { @MainActor in
-            let snippets = derivedSearchResults
-            
+            let q = _currentSearchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+            let snippets: [SearchSnippet]
+            do {
+                snippets = try await searchService.search(query: q, limit: 5).snippets
+            } catch {
+                derivedSearchResults = []
+                searchResultsSummary = "Search failed: \(error.localizedDescription)"
+                isGeneratingSummary = false
+                return
+            }
+            derivedSearchResults = snippets
+
             guard !snippets.isEmpty else {
-                searchResultsSummary = "No matching topic found. Try asking about climate change, AI in education, nutrition, or urban transit."
+                searchResultsSummary = "No documents found for \"\(q)\"."
                 isGeneratingSummary = false
                 return
             }
@@ -256,23 +254,14 @@ struct DraftEditorView: View {
     
     // Check if typed text contains search trigger phrases
     private func checkForSearchTriggers(in text: String) {
-        // Try to match the text to a scenario
-        if let scenario = FakeSearchResults.matchScenario(for: text) {
-            // Only trigger if it's a different topic than current
-            if _currentSearchQuery != scenario.title {
-                print("🎯 Auto-detected search topic: \(scenario.title)")
-                // Set the search query to the scenario title
-                _currentSearchQuery = scenario.title
-                generateSearchSummary()
-            }
-        } else {
-            // If no scenario matches and we have results, clear them
-            if !_currentSearchQuery.isEmpty {
-                print("🎯 No topic detected, clearing search")
-                _currentSearchQuery = ""
-                searchResultsSummary = ""
-            }
-        }
+        // Auto-surfacing results while typing previously relied on FakeSearchResults' local
+        // keyword→scenario table — cheap enough to run per keystroke. Real FTS has no local
+        // topic table, and this fires on every text change over the whole page, so auto-search
+        // here would mean a network call per keystroke against a poor (full-page) query.
+        //
+        // TODO(auto-search): reintroduce as a *debounced* trigger that derives a focused query
+        // (current sentence or selection), not the entire page, and only fires after typing
+        // pauses. Until then the explicit search field drives search; this is intentionally inert.
     }
     #endif
 

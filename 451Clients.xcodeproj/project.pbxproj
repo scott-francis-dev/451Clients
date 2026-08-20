@@ -15,6 +15,8 @@
 		B687077F2FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707642FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift */; };
 		B68707802FFAEA7B00025DF2 /* DocumentMetadata451.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707632FFAEA7B00025DF2 /* DocumentMetadata451.swift */; };
 		B68707812FFAEA7B00025DF2 /* Document451.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707432FFAEA7B00025DF2 /* Document451.swift */; };
+		AECEB1DE86CF7D3C7555A7E3 /* VariableManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C476F3A6975BEB54DAD491 /* VariableManifest.swift */; };
+		EEEA25DFABF1E07033FAE171 /* VariableIndexObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93D590E408EB307F4D141AAD /* VariableIndexObject.swift */; };
 		B68707822FFAEA7B00025DF2 /* PrivateDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707772FFAEA7B00025DF2 /* PrivateDataManager.swift */; };
 		B68707832FFAEA7B00025DF2 /* WalletAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707712FFAEA7B00025DF2 /* WalletAPI.swift */; };
 		B68707842FFAEA7B00025DF2 /* SignerSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074C2FFAEA7B00025DF2 /* SignerSelection.swift */; };
@@ -71,6 +73,8 @@
 		B68707B72FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707642FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift */; };
 		B68707B82FFAEA7B00025DF2 /* DocumentMetadata451.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707632FFAEA7B00025DF2 /* DocumentMetadata451.swift */; };
 		B68707B92FFAEA7B00025DF2 /* Document451.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707432FFAEA7B00025DF2 /* Document451.swift */; };
+		55DBDDD142E3B622A99C42B9 /* VariableManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C476F3A6975BEB54DAD491 /* VariableManifest.swift */; };
+		40223EE8653D7CBB50DB3F1D /* VariableIndexObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93D590E408EB307F4D141AAD /* VariableIndexObject.swift */; };
 		B68707BA2FFAEA7B00025DF2 /* PrivateDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707772FFAEA7B00025DF2 /* PrivateDataManager.swift */; };
 		B68707BB2FFAEA7B00025DF2 /* WalletAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707712FFAEA7B00025DF2 /* WalletAPI.swift */; };
 		B68707BC2FFAEA7B00025DF2 /* SignerSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074C2FFAEA7B00025DF2 /* SignerSelection.swift */; };
@@ -127,6 +131,8 @@
 		B68707EF2FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707642FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift */; };
 		B68707F02FFAEA7B00025DF2 /* DocumentMetadata451.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707632FFAEA7B00025DF2 /* DocumentMetadata451.swift */; };
 		B68707F12FFAEA7B00025DF2 /* Document451.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707432FFAEA7B00025DF2 /* Document451.swift */; };
+		BD2AE8ABF487CAF6A8600C96 /* VariableManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C476F3A6975BEB54DAD491 /* VariableManifest.swift */; };
+		61D5590A405C7FA31C9D54E4 /* VariableIndexObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93D590E408EB307F4D141AAD /* VariableIndexObject.swift */; };
 		B68707F22FFAEA7B00025DF2 /* PrivateDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707772FFAEA7B00025DF2 /* PrivateDataManager.swift */; };
 		B68707F32FFAEA7B00025DF2 /* WalletAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707712FFAEA7B00025DF2 /* WalletAPI.swift */; };
 		B68707F42FFAEA7B00025DF2 /* SignerSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074C2FFAEA7B00025DF2 /* SignerSelection.swift */; };
@@ -183,6 +189,8 @@
 		B68708272FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707642FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift */; };
 		B68708282FFAEA7B00025DF2 /* DocumentMetadata451.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707632FFAEA7B00025DF2 /* DocumentMetadata451.swift */; };
 		B68708292FFAEA7B00025DF2 /* Document451.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707432FFAEA7B00025DF2 /* Document451.swift */; };
+		7BA1FCE2E61BF29C25FA50B1 /* VariableManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C476F3A6975BEB54DAD491 /* VariableManifest.swift */; };
+		F35DF8FFE29BDD0215F4AC19 /* VariableIndexObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93D590E408EB307F4D141AAD /* VariableIndexObject.swift */; };
 		B687082A2FFAEA7B00025DF2 /* PrivateDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707772FFAEA7B00025DF2 /* PrivateDataManager.swift */; };
 		B687082B2FFAEA7B00025DF2 /* WalletAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68707712FFAEA7B00025DF2 /* WalletAPI.swift */; };
 		B687082C2FFAEA7B00025DF2 /* SignerSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B687074C2FFAEA7B00025DF2 /* SignerSelection.swift */; };
@@ -293,6 +301,8 @@
 		B68707412FFAEA7B00025DF2 /* ConnectionModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionModels.swift; sourceTree = "<group>"; };
 		B68707422FFAEA7B00025DF2 /* CredentialItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialItem.swift; sourceTree = "<group>"; };
 		B68707432FFAEA7B00025DF2 /* Document451.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document451.swift; sourceTree = "<group>"; };
+		F7C476F3A6975BEB54DAD491 /* VariableManifest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableManifest.swift; sourceTree = "<group>"; };
+		93D590E408EB307F4D141AAD /* VariableIndexObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableIndexObject.swift; sourceTree = "<group>"; };
 		B68707442FFAEA7B00025DF2 /* MilestoneModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilestoneModels.swift; sourceTree = "<group>"; };
 		B68707452FFAEA7B00025DF2 /* Persona.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persona.swift; sourceTree = "<group>"; };
 		B68707462FFAEA7B00025DF2 /* PersonaProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonaProfile.swift; sourceTree = "<group>"; };
@@ -504,6 +514,8 @@
 				B68707412FFAEA7B00025DF2 /* ConnectionModels.swift */,
 				B68707422FFAEA7B00025DF2 /* CredentialItem.swift */,
 				B68707432FFAEA7B00025DF2 /* Document451.swift */,
+				F7C476F3A6975BEB54DAD491 /* VariableManifest.swift */,
+				93D590E408EB307F4D141AAD /* VariableIndexObject.swift */,
 				B68707442FFAEA7B00025DF2 /* MilestoneModels.swift */,
 				B68707452FFAEA7B00025DF2 /* Persona.swift */,
 				B68707462FFAEA7B00025DF2 /* PersonaProfile.swift */,
@@ -858,6 +870,8 @@
 				B68708272FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift in Sources */,
 				B68708282FFAEA7B00025DF2 /* DocumentMetadata451.swift in Sources */,
 				B68708292FFAEA7B00025DF2 /* Document451.swift in Sources */,
+				7BA1FCE2E61BF29C25FA50B1 /* VariableManifest.swift in Sources */,
+				F35DF8FFE29BDD0215F4AC19 /* VariableIndexObject.swift in Sources */,
 				B687082A2FFAEA7B00025DF2 /* PrivateDataManager.swift in Sources */,
 				B687082B2FFAEA7B00025DF2 /* WalletAPI.swift in Sources */,
 				B687082C2FFAEA7B00025DF2 /* SignerSelection.swift in Sources */,
@@ -919,6 +933,8 @@
 				B687077F2FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift in Sources */,
 				B68707802FFAEA7B00025DF2 /* DocumentMetadata451.swift in Sources */,
 				B68707812FFAEA7B00025DF2 /* Document451.swift in Sources */,
+				AECEB1DE86CF7D3C7555A7E3 /* VariableManifest.swift in Sources */,
+				EEEA25DFABF1E07033FAE171 /* VariableIndexObject.swift in Sources */,
 				B68707822FFAEA7B00025DF2 /* PrivateDataManager.swift in Sources */,
 				B68707832FFAEA7B00025DF2 /* WalletAPI.swift in Sources */,
 				B68707842FFAEA7B00025DF2 /* SignerSelection.swift in Sources */,
@@ -976,6 +992,8 @@
 				B68707F02FFAEA7B00025DF2 /* DocumentMetadata451.swift in Sources */,
 				B68708642FFB154000025DF2 /* ActionDeckCard.swift in Sources */,
 				B68707F12FFAEA7B00025DF2 /* Document451.swift in Sources */,
+				BD2AE8ABF487CAF6A8600C96 /* VariableManifest.swift in Sources */,
+				61D5590A405C7FA31C9D54E4 /* VariableIndexObject.swift in Sources */,
 				B68707F22FFAEA7B00025DF2 /* PrivateDataManager.swift in Sources */,
 				B68707F32FFAEA7B00025DF2 /* WalletAPI.swift in Sources */,
 				B68707F42FFAEA7B00025DF2 /* SignerSelection.swift in Sources */,
@@ -1033,6 +1051,8 @@
 				B68707B72FFAEA7B00025DF2 /* DocumentMetadataEmbedding.swift in Sources */,
 				B68707B82FFAEA7B00025DF2 /* DocumentMetadata451.swift in Sources */,
 				B68707B92FFAEA7B00025DF2 /* Document451.swift in Sources */,
+				55DBDDD142E3B622A99C42B9 /* VariableManifest.swift in Sources */,
+				40223EE8653D7CBB50DB3F1D /* VariableIndexObject.swift in Sources */,
 				B68707BA2FFAEA7B00025DF2 /* PrivateDataManager.swift in Sources */,
 				B68707BB2FFAEA7B00025DF2 /* WalletAPI.swift in Sources */,
 				B68707BC2FFAEA7B00025DF2 /* SignerSelection.swift in Sources */,

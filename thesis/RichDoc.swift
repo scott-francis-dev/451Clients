@@ -161,6 +161,10 @@ public struct Attributes: Codable, Equatable {
     public var fontSize: Double?
     public var link: String?
 
+    // Entity tagging (Layer-2 thesis carrier). A range typed as concept/location/variable.
+    public var entityType: String?        // raw EntityKind: "concept" | "location" | "variable"
+    public var entityPayload: JSONValue?  // qid for a concept, VariableManifest for a variable
+
     public init(
         bold: Bool? = nil,
         italic: Bool? = nil,
@@ -170,7 +174,9 @@ public struct Attributes: Codable, Equatable {
         background: String? = nil,
         fontFamily: String? = nil,
         fontSize: Double? = nil,
-        link: String? = nil
+        link: String? = nil,
+        entityType: String? = nil,
+        entityPayload: JSONValue? = nil
     ) {
         self.bold = bold
         self.italic = italic
@@ -181,6 +187,8 @@ public struct Attributes: Codable, Equatable {
         self.fontFamily = fontFamily
         self.fontSize = fontSize
         self.link = link
+        self.entityType = entityType
+        self.entityPayload = entityPayload
     }
 }
 
@@ -214,5 +222,25 @@ public enum JSONValue: Codable, Equatable {
         case .array(let a): try c.encode(a)
         case .null: try c.encodeNil()
         }
+    }
+}
+
+// Bridge between JSONValue and any Codable payload (e.g. VariableManifest for a variable,
+// a qid string for a concept). Lets a carrier stash a typed manifest in TextRun.attrs.entityPayload
+// and read it back. Layer-2 thesis carrier — see VARIABLE_OBJECT_KIND.md.
+public extension JSONValue {
+    /// Wrap any Encodable as a JSONValue. Returns nil if it can't round-trip through JSON.
+    init?<T: Encodable>(encoding value: T) {
+        guard let data = try? JSONEncoder().encode(value),
+              let decoded = try? JSONDecoder().decode(JSONValue.self, from: data) else {
+            return nil
+        }
+        self = decoded
+    }
+
+    /// Decode this JSONValue into a concrete Decodable type. Returns nil on mismatch.
+    func decoded<T: Decodable>(as type: T.Type) -> T? {
+        guard let data = try? JSONEncoder().encode(self) else { return nil }
+        return try? JSONDecoder().decode(type, from: data)
     }
 }
