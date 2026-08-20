@@ -12,6 +12,7 @@ struct ProposedPersonaReviewView: View {
     @State private var canAccept = false
 
     @State private var isSubmitting = false
+    @State private var showingPersonaCreation = false
     @State private var submitMessage: String? = nil
 
     @EnvironmentObject private var personaManager: PersonaManager
@@ -38,6 +39,9 @@ struct ProposedPersonaReviewView: View {
                 .padding()
             }
             .navigationTitle("Review Persona")
+            .sheet(isPresented: $showingPersonaCreation) {
+                CreatePersonaView(personaManager: personaManager)
+            }
             .inlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Close") { dismiss() } }
@@ -115,37 +119,34 @@ struct ProposedPersonaReviewView: View {
         VStack(alignment: .leading, spacing: 8) {
             Button {
                 Task {
-                    guard canAccept, let token = parsedToken, let proposed = proposed else { return }
+                    guard canAccept, let token = parsedToken else { return }
                     await MainActor.run { isSubmitting = true; submitMessage = nil }
                     defer { Task { await MainActor.run { isSubmitting = false } } }
 
+                    // Accepting signs the proposal as you, so it needs a persona whose key this
+                    // device actually holds. This used to fabricate one when there was none: an
+                    // ephemeral key, a made-up "did:example:" identifier, a signature sent to the
+                    // server under that identifier, and a Persona stored locally whose private key
+                    // was then discarded — permanently unable to sign again. Persona creation is a
+                    // real flow with a server round trip and a saved key; this screen sends you
+                    // there rather than approximating it.
+                    guard let acceptingPersona = personaManager.activePersona() else {
+                        await MainActor.run {
+                            submitMessage = "Accepting signs this proposal as you, so it needs a persona whose key is on this device. Create one first — then accept, and the acceptance will carry that persona's signature."
+                            showingPersonaCreation = true
+                        }
+                        return
+                    }
+
                     do {
-                        // Determine accepting DID and private key
-                        let acceptingPersona = personaManager.activePersona()
-                        let (acceptingDID, privateKey): (String, P256.Signing.PrivateKey) = try {
-                            if let persona = acceptingPersona {
-                                let key = try PrivateKeyStore.loadPrivateKey(for: persona.id)
-                                return (persona.id, key)
-                            } else {
-                                // Minimal fallback: create ephemeral key and DID using CryptoKit
-                                let key = P256.Signing.PrivateKey()
-                                let pubB64 = key.publicKey.derRepresentation.base64EncodedString()
-                                let hash = SHA256.hash(data: Data(pubB64.utf8)).map { String(format: "%02x", $0) }.joined()
-                                let did = "did:example:" + String(hash.prefix(16))
-                                return (did, key)
-                            }
-                        }()
+                        let acceptingDID = acceptingPersona.id
+                        let privateKey = try PrivateKeyStore.loadPrivateKey(for: acceptingDID)
+                        let publicKeyB64 = acceptingPersona.publicKeyBase64
 
                         let timestamp = ISO8601DateFormatter().string(from: Date())
                         let canonical = canonicalAcceptanceMessage(token: token, acceptingDID: acceptingDID, timestamp: timestamp)
                         let signature = try privateKey.signature(for: Data(canonical.utf8))
                         let signatureB64 = Data(signature.derRepresentation).base64EncodedString()
-                        let publicKeyB64: String
-                        if let persona = acceptingPersona {
-                            publicKeyB64 = persona.publicKeyBase64
-                        } else {
-                            publicKeyB64 = privateKey.publicKey.derRepresentation.base64EncodedString()
-                        }
 
                         try await ProposalVerificationService.shared.submitAcceptance(
                             proposalID: token.payload.proposalID,
@@ -154,33 +155,6 @@ struct ProposedPersonaReviewView: View {
                             tokenString: tokenString,
                             tokenID: token.payload.tokenID
                         )
-
-                        // Persist persona locally (if not already present)
-                        if acceptingPersona == nil {
-                            let newPersona = Persona(
-                                id: acceptingDID,
-                                controller: acceptingDID,
-                                name: proposed.name,
-                                handle: proposed.handle ?? proposed.name.replacingOccurrences(of: " ", with: ".").lowercased(),
-                                displayName: proposed.displayName,
-                                displayPublisher: proposed.displayPublisher,
-                                address: proposed.address,
-                                email: proposed.email,
-                                emailVerified: false,
-                                orcid: nil,
-                                orcidVerified: false,
-                                affiliations: proposed.affiliations,
-                                socialLinks: nil,
-                                publicKeyBase64: publicKeyB64,
-                                storageEndpoints: nil,
-                                createdAt: timestamp,
-                                updatedAt: nil,
-                                eTag: nil,
-                                visibility: .private,
-                                status: "active"
-                            )
-                            personaManager.addPersona(newPersona)
-                        }
 
                         await MainActor.run { submitMessage = "✅ Persona accepted and recorded" }
                         try? await Task.sleep(nanoseconds: 800_000_000)
