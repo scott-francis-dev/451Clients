@@ -429,11 +429,28 @@ struct MultiPartySigningView: View {
         defer { isProcessing = false }
         
         do {
-            // In a real app, you would load the actual private key for this DID
-            // For demo purposes, we'll generate a temporary key
-            let privateKey = P256.Signing.PrivateKey()
+            // The signer DID is typed into a text field, and this used to sign it with a freshly
+            // generated key — so the app would produce a signature claiming to be from any persona
+            // whose DID you could spell. That is a false-attribution generator, and the server's
+            // whole attribution gate exists to catch exactly this.
+            //
+            // A device can only sign as a persona whose key it holds. If this one does not, the
+            // co-signer has to sign on their own device; there is no honest local substitute.
+            let privateKey: P256.Signing.PrivateKey
+            do {
+                privateKey = try PrivateKeyStore.loadPrivateKey(for: newSignerDID)
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = "This device does not hold the private key for \(newSignerDID), so it cannot sign as that persona. That signer must add their signature from the device that holds their key."
+                }
+                return
+            }
+            // Derived from the key just loaded, so it is that persona's real public key by
+            // construction. rawRepresentation to match how personas are registered
+            // (CreatePersonaView.swift:243) — a different encoding here would fail to verify
+            // against what the chain holds.
             let publicKey = privateKey.publicKey.rawRepresentation.base64EncodedString()
-            
+
             guard let data = documentData else {
                 throw DocumentSigningError.invalidDocumentId
             }

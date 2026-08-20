@@ -639,11 +639,15 @@ struct RealDocumentSigningView: View {
         errorMessage = nil
         
         do {
-            // In a real app, you would load the actual private key for this persona
-            // For demo purposes, we'll generate a temporary key
-            let privateKey = P256.Signing.PrivateKey()
-            let publicKey = privateKey.publicKey.rawRepresentation.base64EncodedString()
-            
+            // The persona's own key, from the keychain. This previously generated a fresh
+            // P256 key per signature while still sending `persona.id` as the signer, so the
+            // signature verified against the throwaway public key travelling beside it and
+            // proved nothing about the persona — a signing button that did not sign as the
+            // persona. If the key is absent this throws rather than inventing one: a
+            // signature nobody can attribute is worse than a refusal.
+            let privateKey = try PrivateKeyStore.loadPrivateKey(for: persona.id)
+            let publicKey = persona.publicKeyBase64
+
             let documentHash = Data(SHA256.hash(data: data))
             
             let response = try await DocumentSigningService.addSignature(
