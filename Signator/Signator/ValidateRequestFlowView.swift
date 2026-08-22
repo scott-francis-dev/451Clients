@@ -6,11 +6,11 @@ import PhotosUI
 
 #if canImport(UIKit)
 import UIKit
-typealias PlatformImage = UIImage
 #elseif canImport(AppKit)
 import AppKit
-typealias PlatformImage = NSImage
 #endif
+// PlatformImage comes from Common/Platform/PlatformImage.swift — declaring it here as well made
+// two module-scope declarations of the same name once Common became shared.
 
 struct ValidateRequestFlowView: View {
     @ObservedObject var personaManager: PersonaManager

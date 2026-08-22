@@ -751,6 +751,7 @@ struct GlassCardView<Content: View>: View {
             // Background: Liquid Glass on supported OS, fallback material otherwise
             .background(
                 Group {
+                    #if !os(visionOS)
                     if #available(iOS 26.0, macOS 26.0, tvOS 26.0, watchOS 26.0, *) {
                         RoundedRectangle(
                             cornerRadius: 16,
@@ -772,6 +773,15 @@ struct GlassCardView<Content: View>: View {
                                     .stroke(Color.white.opacity(0.15), lineWidth: 1)
                             )
                     }
+                    #else
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color.black.opacity(0.04))
+                        .background(.ultraThinMaterial)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                        )
+                    #endif
                 }
             )
             .overlay(chrome)
